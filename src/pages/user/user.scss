@@ -1,0 +1,99 @@
+.user{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.6);
+    background-blend-mode: overlay;
+    background-position: center;
+    background-size: cover;
+    height: 91vh;
+  
+    .user-profile-card {
+      width: 100%;
+      max-width: 500px;
+      margin: 20px auto;
+      text-align: center;
+      border-radius: 20px;
+      background-color: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(1px);
+      box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  
+      .avatar-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      
+      .list-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        flex-direction: row;
+      }
+  
+      .editor-field{
+        width: 10vh;
+        margin: 5px;
+      }
+  
+      .button-group{
+        width: 10vh;
+        margin: 5px;
+      }
+      
+      .list-label {
+        width: 5px;
+        flex: 1;
+      }
+      
+      .input-field {
+        width: 160px;
+        margin-left: 8px;
+      }
+      
+      .text-field {
+        width: 160px;
+        margin-left: 8px;
+      }
+      
+      .edit-button{
+        width: 10vh;
+        margin: 5px;
+      }
+      
+      .upload-button {
+        width: 10vh;
+        margin: 5px;
+      }
+      
+      .icon-button {
+        width: 30px;
+        margin-left: 4px;
+      }
+    }
+  }
+  
+  
+  
+  
+  @media (max-width: 480px) {
+    .input-field {
+      width: 100%;
+      margin-bottom: 8px;
+    }
+  
+    .icon-button {
+      width: 100%;
+      margin-bottom: 8px;
+    }
+  
+    .edit-button,
+    .upload-button {
+      width: 100%;
+      margin-bottom: 8px;
+    }
+  }
+    
