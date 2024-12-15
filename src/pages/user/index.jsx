@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./user.scss";
-import { Descriptions, Button, Modal, Form, Input, message, Select } from "antd";
+import { Descriptions, Button, Modal, Form, Input, message, Select, Spin } from "antd";
 import { UserOutlined, EditOutlined } from "@ant-design/icons";
 import { service } from "@/service";
 
@@ -8,6 +8,8 @@ const User = () => {
   const [user, setUser] = useState({});
   const [userType, setUserType] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false); // 加载状态
+  const [saving, setSaving] = useState(false); // 更新信息按钮加载状态
   const [form] = Form.useForm();
 
   const formatGender = (gender) => {
@@ -26,15 +28,25 @@ const User = () => {
     const userTypeFromStorage = localStorage.getItem("userType");
     setUserType(userTypeFromStorage);
 
-    if (userTypeFromStorage === "teacher") {
-      service.teacher.getInfo().then((res) => {
-        setUser(res.data.data);
-      });
-    } else if (userTypeFromStorage === "student") {
-      service.student.getInfo().then((res) => {
-        setUser(res.data.data);
-      });
-    }
+    const fetchUserInfo = async () => {
+      setLoading(true); // 开始加载
+      try {
+        if (userTypeFromStorage === "teacher") {
+          const res = await service.teacher.getInfo();
+          setUser(res.data.data);
+        } else if (userTypeFromStorage === "student") {
+          const res = await service.student.getInfo();
+          setUser(res.data.data);
+        }
+      } catch (error) {
+        console.error("获取用户信息失败:", error);
+        message.error("无法获取用户信息，请检查您的网络连接或稍后重试！");
+      } finally {
+        setLoading(false); // 加载结束
+      }
+    };
+
+    fetchUserInfo();
   }, []);
 
   const handleEdit = () => {
@@ -42,52 +54,58 @@ const User = () => {
     form.setFieldsValue(user);
   };
 
-  
   const handleSave = () => {
     form.validateFields().then((values) => {
       const processedValues = Object.fromEntries(
         Object.entries(values).map(([key, value]) => [key, value ?? ""])
       );
-  
-      if (userType === "teacher") {
-        service.teacher
-          .updateInfo(
-            processedValues.username,
-            processedValues.password,
-            processedValues.sex,
-            processedValues.introduction,
-            processedValues.profession,
-            processedValues.college,
-            processedValues.idcard
-          )
-          .then(() => {
+
+      const updateUserInfo = async () => {
+        setSaving(true); // 更新按钮加载状态
+        try {
+          if (userType === "teacher") {
+            await service.teacher.updateInfo(
+              processedValues.username,
+              processedValues.password,
+              processedValues.sex,
+              processedValues.introduction,
+              processedValues.profession,
+              processedValues.college,
+              processedValues.idcard
+            );
             message.success("教师信息已更新！");
-            setUser((prevUser) => ({ ...prevUser, ...processedValues }));
-            setIsModalVisible(false);
-          });
-      } else if (userType === "student") {
-        service.student
-          .updateInfo(
-            processedValues.username,
-            processedValues.password,
-            processedValues.sex,
-            processedValues.classer,
-            processedValues.profession,
-            processedValues.college,
-            processedValues.idcard
-          )
-          .then(() => {
+          } else if (userType === "student") {
+            await service.student.updateInfo(
+              processedValues.username,
+              processedValues.password,
+              processedValues.sex,
+              processedValues.classer,
+              processedValues.profession,
+              processedValues.college,
+              processedValues.idcard
+            );
             message.success("学生信息已更新！");
-            setUser((prevUser) => ({ ...prevUser, ...processedValues }));
-            setIsModalVisible(false);
-          });
-      }
+          }
+          setUser((prevUser) => ({ ...prevUser, ...processedValues }));
+          setIsModalVisible(false);
+        } catch (error) {
+          console.error("更新信息失败:", error);
+          message.error("更新失败，无法连接服务器，请稍后再试！");
+        } finally {
+          setSaving(false); // 按钮加载状态结束
+        }
+      };
+
+      updateUserInfo();
+    }).catch((errorInfo) => {
+      console.error("表单验证失败:", errorInfo);
     });
   };
 
   return (
     <div className="user">
-      <div className="user-box">
+       <Spin spinning={loading} tip="加载中..."></Spin>
+      <div className="user-box">  
         <h1 className="title">
           <UserOutlined /> &nbsp;个人信息
         </h1>
@@ -158,6 +176,7 @@ const User = () => {
         onCancel={() => setIsModalVisible(false)}
         okText="保存"
         cancelText="取消"
+        confirmLoading={saving}
       >
         <Form form={form} layout="vertical">
           <Form.Item label="姓名" name="username">
