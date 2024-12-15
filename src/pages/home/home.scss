@@ -6,16 +6,16 @@
     background-size: cover;
     background-position: center;
     text-align: center;
-    color: black; // 文字颜色改为黑色更清晰
+    color: black;
     
   
     .container {
       display: flex;
       flex-direction: row;
       justify-content: center;    
-      margin-left: 280px;
-      margin-top: 200px;
-      margin-bottom: 150px;
+      margin-left: 20%;
+      margin-top: 12%;
+      margin-bottom: 12%;
       border-radius: 50px;
       box-shadow: 0 0px 30px rgba(208, 213, 220, 0.6); 
     }

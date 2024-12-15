@@ -33,7 +33,7 @@ const Login = () => {
   const handleLogin = () => {
 
       service.user.auth(email, password, userType).then(res => {
-        const { token, username, email, userID, avatar, admin } = res.data;
+        const { token, username, email, userID, usertype } = res.data;
         if (token === null) {
           notificationApi.warning({
             message: "账号未激活",
@@ -46,8 +46,7 @@ const Login = () => {
         localStorage.setItem('username', username);
         localStorage.setItem('email', email);
         localStorage.setItem('userID', userID);
-        localStorage.setItem('avatar', `${window.baseURL}avatar/${avatar}`);
-        localStorage.setItem('admin', admin);
+        localStorage.setItem("userType", usertype);
         window.location.href = '/';
       }).catch(err => {
         if (err.response?.status === 401) {
@@ -70,7 +69,6 @@ const Login = () => {
   const resetStatus = () => {
     setUsernameStatus('');
     setPasswordStatus('');
-    setUserType('student');
   };
 
   return (
@@ -80,8 +78,6 @@ const Login = () => {
         <h1 className='title'><LoginOutlined />&nbsp;登录</h1>
         <p className='description'>登录以使用完整功能</p>
         <hr className='divide' />
-
-
         <div className='input-area'>
               <Select
                 value={userType}

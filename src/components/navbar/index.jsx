@@ -5,7 +5,6 @@ import './navbar.scss';
 import {UserOutlined, LoginOutlined, LogoutOutlined, ControlOutlined, FormOutlined} from '@ant-design/icons';
 
 const Navbar = () => {
-  const { pathname } = useLocation();
   const navigate = useNavigate();
   const [messageApi, messageContextHolder] = message.useMessage();
 
@@ -71,7 +70,7 @@ const Navbar = () => {
           <Link style={colorExtraStyle} className='link small-hide' to={'/feedback'}>反馈</Link>
         </div>
         <Popover content={userPopoverContent}>
-          <Avatar size={40} src={localStorage.getItem("avatar")}><UserOutlined /></Avatar>
+          <Avatar size={40} ><UserOutlined /></Avatar>
         </Popover>
       </div>
     </div >

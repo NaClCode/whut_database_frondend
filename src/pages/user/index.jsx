@@ -1,214 +1,208 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Avatar, Typography, List, notification, Input, Button, Upload, message } from 'antd';
-import { MailOutlined, LockOutlined, CrownOutlined, UploadOutlined, EditOutlined, CheckOutlined, CloseOutlined, PayCircleOutlined } from '@ant-design/icons';
-import './user.scss';
-import {service} from '@/service'
-
-const { Title, Text } = Typography;
+import React, { useState, useEffect } from "react";
+import "./user.scss";
+import { Descriptions, Button, Modal, Form, Input, message, Select } from "antd";
+import { UserOutlined, EditOutlined } from "@ant-design/icons";
+import { service } from "@/service";
 
 const User = () => {
-  const [avatar, setAvatar] = useState("");
-  const [userID, setUserID] = useState("");
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [usernameStatus, setUsernameStatus] = useState("");
-  const [passwordStatus, setPasswordStatus] = useState("");
-  const [confirmStatus, setConfirmStatus] = useState("");
-  const [isUpdatePassword, setIsUpdatePassword] = useState(false);
-  const [notificationApi, contextHolder] = notification.useNotification();
-  const [messageApi, msgContextHolder] = message.useMessage();
-  const [userLevel, setUserLevel] = useState("");
-  const [isEditingEmail, setIsEditingEmail] = useState(false);
-  const [isEditingPassword, setIsEditingPassword] = useState(false);
+  const [user, setUser] = useState({});
+  const [userType, setUserType] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [form] = Form.useForm();
+
+  const formatGender = (gender) => {
+    switch (gender) {
+      case "M":
+        return "男生";
+      case "F":
+        return "女生";
+      case "U":
+      default:
+        return "未设置";
+    }
+  };
 
   useEffect(() => {
-    service.user.info().then(res => {
-      const { userID, email, username } = res.data.data;
-      setUserID(userID);
-      setEmail(email);
-      setUsername(username);
-    }).catch(err => {
-      notificationApi.error({
-        message: '获取用户信息失败',
-        description: `${err}`
+    const userTypeFromStorage = localStorage.getItem("userType");
+    setUserType(userTypeFromStorage);
+
+    if (userTypeFromStorage === "teacher") {
+      service.teacher.getInfo().then((res) => {
+        setUser(res.data.data);
       });
-    });
-    // eslint-disable-next-line
+    } else if (userTypeFromStorage === "student") {
+      service.student.getInfo().then((res) => {
+        setUser(res.data.data);
+      });
+    }
   }, []);
 
-
-  const handleUpdate = () => {
-    if (username.length < 4 || username.length > 20) {
-      setUsernameStatus('error');
-      notificationApi.error({
-        message: '用户名错误',
-        description: '用户名长度应在 4~20 个字符之间'
-      });
-      return;
-    }
-    if (isUpdatePassword) {
-      if (password.length < 6 || password.length > 20) {
-        setPasswordStatus('error');
-        setConfirmStatus('error');
-        notificationApi.error({
-          message: '密码错误',
-          description: '密码长度应在 6~20 个字符之间'
-        });
-        return;
-      }
-      if (password !== confirm) {
-        setPasswordStatus('error');
-        setConfirmStatus('error');
-        notificationApi.error({
-          message: '密码错误',
-          description: '两次输入的密码不一致'
-        });
-        return;
-      }
-    }
-    service.user.updateInfo(username, password).then(res => {
-
-      
-      messageApi.success('更新成功');
-    }).catch(err => {
-      notificationApi.error({
-        message: '更新失败',
-        description: `${err}`
-      });
-    });
-  }
-
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
+  const handleEdit = () => {
+    setIsModalVisible(true);
+    form.setFieldsValue(user);
   };
 
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-  };
-
-  const toggleEditingEmail = () => {
-    if(isEditingEmail){
-      handleUpdate();
-    }
-    setIsEditingEmail(!isEditingEmail);
-  };
-
-  const toggleEditingPassword = () => {
-    if(isEditingPassword){
-      handleUpdate();
-    }
-    setIsEditingPassword(!isEditingPassword);
-  };
-
-  const togglePay = () => {
-    ///支付函数
-  }
-
-  const onAvatarChange = (info) => {
-    if (info.file.status === 'done') {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatar(reader.result);
-        service.user.info().then(res => {
-          localStorage.setItem('avatar', `${window.baseURL}avatar/${res.data.data.avatar}`);
-          window.location.reload();
-        }).catch(err => {
-          notificationApi.error({
-            message: '获取用户信息失败',
-            description: `${err}`
+  
+  const handleSave = () => {
+    form.validateFields().then((values) => {
+      const processedValues = Object.fromEntries(
+        Object.entries(values).map(([key, value]) => [key, value ?? ""])
+      );
+  
+      if (userType === "teacher") {
+        service.teacher
+          .updateInfo(
+            processedValues.username,
+            processedValues.password,
+            processedValues.sex,
+            processedValues.introduction,
+            processedValues.profession,
+            processedValues.college,
+            processedValues.idcard
+          )
+          .then(() => {
+            message.success("教师信息已更新！");
+            setUser((prevUser) => ({ ...prevUser, ...processedValues }));
+            setIsModalVisible(false);
           });
-        })
+      } else if (userType === "student") {
+        service.student
+          .updateInfo(
+            processedValues.username,
+            processedValues.password,
+            processedValues.sex,
+            processedValues.classer,
+            processedValues.profession,
+            processedValues.college,
+            processedValues.idcard
+          )
+          .then(() => {
+            message.success("学生信息已更新！");
+            setUser((prevUser) => ({ ...prevUser, ...processedValues }));
+            setIsModalVisible(false);
+          });
       }
-      reader.readAsDataURL(info.file.originFileObj);
-    }
-  }
+    });
+  };
 
   return (
-    <div className='user'>
-      <Card className="user-profile-card">
-        <div className="avatar-container">
-          
-          <Title level={1}>{username}</Title>
-        </div>
-        <Card.Meta
-          description={
-            <List>
-              <List.Item>
-                <div className="list-item">
-                  
-                  <Text strong className="list-label"> <MailOutlined /> &nbsp; 邮箱: </Text>
-                  {isEditingEmail ? (
-                    <>
-                      
-                      <Input value={email} onChange={handleEmailChange} className="input-field" />
-                      <div className='button-group'>
-                        <Button icon={<CheckOutlined />} onClick={toggleEditingEmail} type="primary" className="icon-button" />
-                        <Button icon={<CloseOutlined />} onClick={toggleEditingEmail} className="icon-button" />
-                      </div>
-                      
-                    </>
-                  ) : (
-                    <>
-                      <Text className="text-field">{email}</Text>
-                      <Button icon={<EditOutlined />} onClick={toggleEditingEmail} className="edit-button">编辑</Button>
-                    </>
-                  )}
-                </div>
-              </List.Item>
-              <List.Item>
-                <div className="list-item">
-                  
-                  <Text strong className="list-label"><LockOutlined /> &nbsp; 密码: </Text>
-                  {isEditingPassword ? (
-                    <>
-                      <Input.Password value={password} onChange={handlePasswordChange} className="input-field" />
-                      <div className='button-group'>
-                        <Button icon={<CheckOutlined />} onClick={toggleEditingPassword} type="primary" className="icon-button" />
-                        <Button icon={<CloseOutlined />} onClick={toggleEditingPassword} className="icon-button" />
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <Text className="text-field">*********</Text>
-                      <Button icon={<EditOutlined />} onClick={toggleEditingPassword} className="edit-button">编辑</Button>
-                    </>
-                  )}
-                </div>
-              </List.Item>
-              <List.Item>
-                <div className="list-item">
-                  <Text strong className="list-label"> <CrownOutlined/> &nbsp; 会员: </Text>
-                  <Text className="text-field"></Text>
-                  <Button icon={<PayCircleOutlined />} onClick={togglePay} className="edit-button" >充值</Button>
-                </div>
-              </List.Item>
-              <List.Item>
-                <div className="list-item">
-                  
-                  <Text strong className="list-label"><UploadOutlined /> &nbsp;  头像: </Text>
-                  <Text className="text-field"></Text>
-                  
-                  <Upload
-                    className='upload'
-                    action={`${window.baseURL}user/uploadAvatar`}
-                    headers={{ Authorization: localStorage.getItem('token') }}
-                    onChange={onAvatarChange}
-                    showUploadList={false}
-                  >
-                    <Button icon={<UploadOutlined />} className="upload-button">上传</Button>
-                  </Upload>
-                </div>
-              </List.Item>
-            </List>
-          }
-        />
-      </Card>
+    <div className="user">
+      <div className="user-box">
+        <h1 className="title">
+          <UserOutlined /> &nbsp;个人信息
+        </h1>
+        <p className="description">查看和更新您的个人信息</p>
+        <hr className="divide" />
+        <Descriptions column={1} bordered>
+          <Descriptions.Item label="用户类型" className="item">
+            {userType === "teacher" ? "教师" : "学生"}
+          </Descriptions.Item>
+          <Descriptions.Item label="姓名" className="item">
+            {user.name || "未设置"}
+          </Descriptions.Item>
+          <Descriptions.Item label="性别" className="item">
+            {formatGender(user.sex)}
+          </Descriptions.Item>
+          {userType === "teacher" ? (
+            <>
+              <Descriptions.Item label="简介" className="item">
+                {user.introduction || "未设置"}
+              </Descriptions.Item>
+              <Descriptions.Item label="专业" className="item">
+                {user.profession || "未设置"}
+              </Descriptions.Item>
+              <Descriptions.Item label="学院" className="item">
+                {user.college || "未设置"}
+              </Descriptions.Item>
+              <Descriptions.Item label="电子邮件" className="item">
+                {user.email || "未设置"}
+              </Descriptions.Item>
+              <Descriptions.Item label="身份证号" className="item">
+                {user.idcard || "未设置"}
+              </Descriptions.Item>
+            </>
+          ) : (
+            <>
+              <Descriptions.Item label="班级" className="item">
+                {user.classer || "未设置"}
+              </Descriptions.Item>
+              <Descriptions.Item label="专业" className="item">
+                {user.profession || "未设置"}
+              </Descriptions.Item>
+              <Descriptions.Item label="学院" className="item">
+                {user.college || "未设置"}
+              </Descriptions.Item>
+              <Descriptions.Item label="电子邮件" className="item">
+                {user.email || "未设置"}
+              </Descriptions.Item>
+              <Descriptions.Item label="身份证号" className="item">
+                {user.idcard || "未设置"}
+              </Descriptions.Item>
+            </>
+          )}
+        </Descriptions>
+        <Button
+          type="primary"
+          icon={<EditOutlined />}
+          className="button"
+          onClick={handleEdit}
+        >
+          更新信息
+        </Button>
+      </div>
+
+      <Modal
+        title="更新个人信息"
+        visible={isModalVisible}
+        onOk={handleSave}
+        onCancel={() => setIsModalVisible(false)}
+        okText="保存"
+        cancelText="取消"
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item label="姓名" name="username">
+            <Input />
+          </Form.Item>
+          <Form.Item label="性别" name="sex" >
+            <Select placeholder="请选择性别">
+              <Select.Option value="M">男生</Select.Option>
+              <Select.Option value="F">女生</Select.Option>
+              <Select.Option value="U">未知</Select.Option>
+            </Select>
+          </Form.Item>
+          {userType === "teacher" && (
+            <Form.Item label="简介" name="introduction">
+              <Input />
+            </Form.Item>
+          )}
+          <Form.Item label="专业" name="profession">
+            <Input />
+          </Form.Item>
+          <Form.Item label="学院" name="college">
+            <Input />
+          </Form.Item>
+          {userType === "student" && (
+            <Form.Item label="班级" name="classer">
+              <Input />
+            </Form.Item>
+          )}
+          <Form.Item label="身份证号" name="idcard">
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="密码"
+            name="password"
+            rules={[
+              { min: 6, message: "密码长度不能少于6位" },
+            ]}
+          >
+            <Input.Password placeholder="输入新密码" />
+          </Form.Item>
+        </Form>
+      </Modal>
+
     </div>
   );
 };
-
 
 export default User;

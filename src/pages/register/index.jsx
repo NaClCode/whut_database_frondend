@@ -27,7 +27,7 @@ const Register = () => {
     setUsernameStatus('');
     setPasswordStatus('');
     setConfirmStatus('');
-    setUserType('student');
+
   }
 
   const handleResend = () => {

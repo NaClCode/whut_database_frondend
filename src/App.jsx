@@ -68,8 +68,8 @@ const App = () => {
         <Content style={{ minHeight: "92vh" }}>
           <Router />
         </Content>
-        <Draggable>
-          <Button
+        <Draggable bounds="parent" defaultPosition={{x: 1350, y:500}}>
+          <button
               className="float-button"
               type="primary"
               shape="circle"

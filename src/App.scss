@@ -1,6 +1,6 @@
 .float-button {
-  margin-left: 93vw;
-  margin-top: 60vh;
+  margin-left: 0vw;
+  margin-top: 0vh;
   background-image: url('ai.png');
   background-color: transparent;
   background-size: cover;
@@ -10,4 +10,5 @@
   border: none;
   position: absolute;
   z-index: 1000;
+  transition: background-color 0.3s ease; 
 }
