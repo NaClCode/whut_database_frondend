@@ -1,179 +1,178 @@
-import React, { useState } from "react";
-import { Table, Modal, Button, Space, Tag, message, Card, Row, Col } from "antd";
-import "antd/dist/reset.css"; // 导入 Ant Design 样式
+import React, { useState, useEffect } from 'react';
+import { Card, Col, Row, Typography, Tag, Divider, Space, Button, message, Spin, Pagination } from 'antd';
+import { LeftOutlined } from '@ant-design/icons';
+import { service } from '@/service';
+import './classer.scss';
 
-const CourseContentClasser = () => {
-  // 模拟课程数据
-  const [courses, setCourses] = useState([
-    {
-      key: "1",
-      courseId: "CS101",
-      name: "计算机科学导论",
-      major: "计算机科学",
-      college: "计算机学院",
-      description: "本课程介绍计算机科学的基础知识。",
-      type: "必修",
-      credits: 3,
-      maxStudents: 50,
-      currentStudents: 45,
-      teacher: "张老师",
-      status: "未选",
-    },
-    {
-      key: "2",
-      courseId: "MA102",
-      name: "高等数学",
-      major: "数学",
-      college: "数学学院",
-      description: "高等数学是数学专业的基础课程。",
-      type: "必修",
-      credits: 4,
-      maxStudents: 60,
-      currentStudents: 60,
-      teacher: "李老师",
-      status: "已选",
-    },
-  ]);
+const { Title, Text } = Typography;
 
-  const [selectedCourse, setSelectedCourse] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+const CourseContentClasser = ({ setMode, classplanid }) => {
+  const [courseOverview, setCourseOverview] = useState({});
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const pageSize = 10;
 
-  // 选课、退课操作
-  const handleEnroll = (course) => {
-    if (course.currentStudents >= course.maxStudents) {
-      message.error("选课失败，人数已满");
-      return;
+  // 加载课程详情和班级列表
+  const fetchCourseData = async (page = 1) => {
+    setLoading(true);
+    try {
+      const { data: planData } = await service.courseplan.detail(classplanid);
+      const { data: classerData } = await service.courseclasser.list(classplanid, page, pageSize);
+
+      // 设置课程概述
+      setCourseOverview({
+        name: planData.data.name || '未命名课程',
+        description: planData.data.introduction || '暂无简介',
+        major: planData.data.profession || '未提供',
+        college: planData.data.college || '未提供',
+        credits: planData.data.credit || 0,
+        type: planData.data.type || '未知',
+      });
+
+      // 设置课程列表和总数据量
+      setCourses(
+        classerData.data.data.map((item) => ({
+          id: item.id,
+          teacher: item.teacher || '未知教师',
+          currentStudents: item.num || 0,
+          maxStudents: item.max_num || 0,
+          time: '未提供',
+          isEnrolled: false,
+        }))
+      );
+
+      setTotalItems(classerData.data.total);
+    } catch (error) {
+      message.error('加载课程信息失败，请重试！');
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-    setCourses(
-      courses.map((item) =>
-        item.key === course.key
-          ? { ...item, status: "已选", currentStudents: item.currentStudents + 1 }
-          : item
+  };
+
+  useEffect(() => {
+    fetchCourseData(currentPage);
+  }, [classplanid, currentPage]);
+
+  // 更新选课状态
+  const updateCourseStatus = (index, isEnrolling) => {
+    setCourses((prevCourses) =>
+      prevCourses.map((course, i) =>
+        i === index
+          ? {
+              ...course,
+              isEnrolled: isEnrolling,
+              currentStudents: course.currentStudents + (isEnrolling ? 1 : -1),
+            }
+          : course
       )
     );
-    message.success("选课成功");
+
+    const actionMessage = isEnrolling ? '选课成功' : '退课成功';
+    message.success(`${actionMessage}`);
   };
 
-  const handleDrop = (course) => {
-    if (course.status !== "已选") {
-      message.error("您未选此课程，无法退课");
-      return;
-    }
-    setCourses(
-      courses.map((item) =>
-        item.key === course.key
-          ? { ...item, status: "未选", currentStudents: item.currentStudents - 1 }
-          : item
-      )
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  // 渲染单个班级卡片
+  const renderCourseCard = (course, index) => {
+    const { teacher, time, maxStudents, currentStudents, isEnrolled } = course;
+    return (
+      <Col span={8} key={index}>
+        <Card hoverable title={`教师：${teacher}`} bordered className="class-card">
+          <Space direction="vertical" size="middle">
+            <Text>
+              <strong>上课安排：</strong> {time}
+            </Text>
+            <Text>
+              <strong>最大人数：</strong> {maxStudents}
+            </Text>
+            <Text>
+              <strong>当前人数：</strong>
+              <Tag color={currentStudents >= maxStudents ? 'red' : 'green'}>
+                {currentStudents}
+              </Tag>
+            </Text>
+            <Space>
+              <Button
+                type="primary"
+                onClick={() => updateCourseStatus(index, true)}
+                disabled={isEnrolled || currentStudents >= maxStudents}
+              >
+                {isEnrolled ? '已选课' : '选课'}
+              </Button>
+              <Button
+                danger
+                onClick={() => updateCourseStatus(index, false)}
+                disabled={!isEnrolled}
+              >
+                退课
+              </Button>
+            </Space>
+          </Space>
+        </Card>
+      </Col>
     );
-    message.success("退课成功");
   };
 
-  const showDetails = (course) => {
-    setSelectedCourse(course);
-    setIsModalVisible(true);
-  };
-
-  const closeModal = () => setIsModalVisible(false);
+  if (loading) {
+    return <Spin tip="加载中..." />;
+  }
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>课程计划展示</h2>
-      {/* 使用卡片显示所有课程 */}
-      <Row gutter={[16, 16]}>
-        {courses.map((course) => (
-          <Col span={8} key={course.key}>
-            <Card
-              title={`${course.name} (${course.courseId})`}
-              bordered={true}
-              extra={
-                <Tag color={course.status === "已选" ? "green" : "red"}>
-                  {course.status}
-                </Tag>
-              }
-            >
-              <p>
-                <strong>学院：</strong> {course.college}
-              </p>
-              <p>
-                <strong>类型：</strong> {course.type}
-              </p>
-              <p>
-                <strong>学分：</strong> {course.credits}
-              </p>
-              <p>
-                <strong>人数：</strong> {course.currentStudents}/
-                {course.maxStudents}
-              </p>
-              <Space>
-                <Button type="link" onClick={() => showDetails(course)}>
-                  详情
-                </Button>
-                {course.status === "未选" ? (
-                  <Button
-                    type="primary"
-                    onClick={() => handleEnroll(course)}
-                  >
-                    选课
-                  </Button>
-                ) : (
-                  <Button
-                    type="danger"
-                    onClick={() => handleDrop(course)}
-                  >
-                    退课
-                  </Button>
-                )}
-              </Space>
-            </Card>
+    <div className="course-content-classer">
+      <Button
+        type="link"
+        icon={<LeftOutlined />}
+        onClick={() => setMode('plan')}
+        className="back-button"
+      >
+        返回
+      </Button>
+
+      {/* 课程概述 */}
+      <Card bordered={false} className="course-card">
+        <Title level={4} className="course-title">
+          {courseOverview.name}
+        </Title>
+        <Divider />
+        <Row className="course-details">
+          <Col className="detail-item">
+            <Text strong>专业：</Text> {courseOverview.major}
           </Col>
-        ))}
+          <Col className="detail-item">
+            <Text strong>学院：</Text> {courseOverview.college}
+          </Col>
+          <Col className="detail-item">
+            <Text strong>类型：</Text> {courseOverview.type}
+          </Col>
+          <Col className="detail-item">
+            <Text strong>学分：</Text> {courseOverview.credits}
+          </Col>
+          <Col className="detail-item">
+            <Text strong>简介：</Text> {courseOverview.description}
+          </Col>
+        </Row>
+      </Card>
+
+      {/* 班级列表 */}
+      <Row gutter={[16, 16]} className="class-list">
+        {courses.map(renderCourseCard)}
       </Row>
 
-      {/* 详情 Modal */}
-      <Modal
-        title="课程详情"
-        visible={isModalVisible}
-        onCancel={closeModal}
-        footer={[
-          <Button key="back" onClick={closeModal}>
-            关闭
-          </Button>,
-        ]}
-      >
-        {selectedCourse && (
-          <div>
-            <p>
-              <strong>课程号：</strong> {selectedCourse.courseId}
-            </p>
-            <p>
-              <strong>课程名称：</strong> {selectedCourse.name}
-            </p>
-            <p>
-              <strong>专业：</strong> {selectedCourse.major}
-            </p>
-            <p>
-              <strong>学院：</strong> {selectedCourse.college}
-            </p>
-            <p>
-              <strong>简介：</strong> {selectedCourse.description}
-            </p>
-            <p>
-              <strong>类型：</strong> {selectedCourse.type}
-            </p>
-            <p>
-              <strong>学分：</strong> {selectedCourse.credits}
-            </p>
-            <p>
-              <strong>教师：</strong> {selectedCourse.teacher}
-            </p>
-            <p>
-              <strong>当前人数：</strong> {selectedCourse.currentStudents}/
-              {selectedCourse.maxStudents}
-            </p>
-          </div>
-        )}
-      </Modal>
+      {/* 分页 */}
+      <Pagination
+        current={currentPage}
+        pageSize={pageSize}
+        total={totalItems}
+        onChange={handlePageChange}
+        showSizeChanger={false}
+        style={{ marginTop: '16px', textAlign: 'center' }}
+      />
     </div>
   );
 };

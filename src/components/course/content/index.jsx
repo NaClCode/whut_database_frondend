@@ -10,7 +10,7 @@ const CourseContent = () => {
       {mode === 'plan' ? (
         <CourseContentPlan setMode={setMode} setPlanID={setPlanID}/>
       ) : (
-        < CourseContentClasser/>
+        < CourseContentClasser setMode={setMode} classplanid={planID}/>
       )}
     </>
   );

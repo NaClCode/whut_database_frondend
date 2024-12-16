@@ -185,7 +185,7 @@ const courseclasser = {
     return axios({
       baseURL,
       method: 'get',
-      url: '/course/plan/list',
+      url: '/course/classer/list',
       params: {
         id,
         page,

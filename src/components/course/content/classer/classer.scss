@@ -1,0 +1,39 @@
+.course-content-classer {
+    padding: 0px;
+  
+    .back-button {
+      margin-bottom: 10px;
+    }
+  
+    .course-card {
+      margin-bottom: 0px;
+  
+      .course-title {
+        margin-bottom: 10px;
+      }
+  
+      .course-details {
+        display: flex;
+        flex-wrap: wrap;
+        row-gap: 10px;
+  
+        .detail-item {
+          width: 20%;
+          strong {
+            margin-right: 5px;
+          }
+        }
+      }
+    }
+  
+    .class-list {
+      margin-top: 20px;
+  
+      .class-card {
+        .ant-space-vertical {
+          width: 100%;
+        }
+      }
+    }
+  }
+  

@@ -36,11 +36,11 @@ const CourseSchedule = () => {
   };
 
   return (
-    <Layout style={{ height: '100vh' }}>
+    <Layout style={{ height: '91vh' }}>
       {/* 左侧：日历 */}
       <Sider width={500} style={{ background: '#fff', padding: '20px' }}>
         <Card title="课程日历" bordered={false}>
-          <Calendar
+          <Calendar 
             dateCellRender={dateCellRender} // 渲染单元格内容
             onSelect={handleDateSelect} // 点击日期触发
           />
