@@ -76,7 +76,6 @@ const App = () => {
               onClick={handleButtonClick}
             />
         </Draggable>
-        
       </Layout>
     </Layout>
   );

@@ -1,13 +1,14 @@
 import React from 'react';
 import { Layout, Menu } from 'antd';
-import { BookOutlined, ReadOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { BookOutlined, ReadOutlined, CheckCircleOutlined, TableOutlined, TrophyOutlined } from '@ant-design/icons';
 
 const { Sider } = Layout;
 
 const menuItems = [
   { key: '1', icon: <BookOutlined />, label: '选课' },
   { key: '2', icon: <ReadOutlined />, label: '选课记录' },
-  { key: '3', icon: <CheckCircleOutlined />, label: '已选课程' },
+  { key: '3', icon: <TableOutlined />, label: '课表' },
+  { key: '4', icon: <TrophyOutlined />, label: '成绩' },
 ];
 
 const CourseSider = ({ selectedMenu, setSelectedMenu }) => {

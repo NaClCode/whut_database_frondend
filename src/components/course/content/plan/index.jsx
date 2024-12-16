@@ -3,7 +3,7 @@ import { Input, Button, message, Select } from 'antd';
 import { ProCard, ProTable } from '@ant-design/pro-components';
 import { service } from '@/service';
 import { FormOutlined, CheckCircleOutlined, CloseCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import './courseContent.scss';
+import './plan.scss';
 
 const courseTypeMap = {
   'B': '必修',
@@ -12,7 +12,7 @@ const courseTypeMap = {
   'S': '实践',
 };
 
-const columns = () => [
+const columns = (setMode, setPlanID) => [
   { title: '课程号', dataIndex: 'id', ellipsis: true, width: 100 },
   { title: '课程名称', dataIndex: 'name', ellipsis: true },
   { title: '专业', dataIndex: 'profession', ellipsis: true },
@@ -52,7 +52,7 @@ const columns = () => [
       <Button
         key="select"
         icon={<FormOutlined />}
-        onClick={() => console.log("选课")}
+        onClick={() => {setMode('classer'); setPlanID(row.id)}}
         type="link"
       >
         选课
@@ -61,7 +61,7 @@ const columns = () => [
   },
 ];
 
-const CourseContent = () => {
+const CourseContentPlan = ({setMode, setPlanID}) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -119,7 +119,7 @@ const CourseContent = () => {
   return (
     <ProCard>
       <ProTable
-        columns={columns()}
+        columns={columns(setMode, setPlanID)}
         dataSource={data}
         loading={loading}
         rowKey="id"
@@ -197,4 +197,4 @@ const CourseContent = () => {
   );
 };
 
-export default CourseContent;
+export default CourseContentPlan;

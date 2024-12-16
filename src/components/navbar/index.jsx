@@ -64,9 +64,7 @@ const Navbar = () => {
       <div className='right'>
         <div className='nav-link'>
           <Link style={colorExtraStyle} className='link' to={'/'}>首页</Link>
-          <Link style={colorExtraStyle} className='link' to={'/courseList'}>选课</Link>
-          <Link style={colorExtraStyle} className='link' to={'/courseSchedule'}>课表</Link>
-          <Link style={colorExtraStyle} className='link' to={'/list'}>成绩</Link>
+          <Link style={colorExtraStyle} className='link' to={'/courseList'}>课程</Link>
           <Link style={colorExtraStyle} className='link small-hide' to={'/feedback'}>反馈</Link>
         </div>
         <Popover content={userPopoverContent}>
