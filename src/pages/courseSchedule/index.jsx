@@ -4,7 +4,6 @@ import { Calendar, Card, Badge, Layout, List, Typography, Empty } from 'antd';
 const { Sider, Content } = Layout;
 const { Title } = Typography;
 
-// 课程数据
 const data = {
   '2024-06-10': [{ time: '08:00 - 09:30', name: '数据结构' }, { time: '10:00 - 11:30', name: '操作系统' }],
   '2024-06-11': [{ time: '13:30 - 15:00', name: '数据库系统' }, { time: '15:30 - 17:00', name: '软件工程' }],
@@ -16,7 +15,6 @@ const data = {
 const CourseSchedule = () => {
   const [selectedDate, setSelectedDate] = useState('2024-06-10'); // 默认选中日期
 
-  // 渲染日历单元格的内容
   const dateCellRender = (value) => {
     const dateKey = value.format('YYYY-MM-DD');
     const courses = data[dateKey] || [];

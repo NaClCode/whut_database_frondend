@@ -1,42 +1,73 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Menu, Button, message, Input } from 'antd';
-import { ProCard, ProTable, TableDropdown } from '@ant-design/pro-components';
-import { BookOutlined, ReadOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { Layout, Menu, Button, message, Input, Modal, Card, Row, Col } from 'antd';
+import { ProCard, ProTable} from '@ant-design/pro-components';
+import { BookOutlined, ReadOutlined, CheckCircleOutlined, FormOutlined, CloseCircleOutlined} from '@ant-design/icons';
 import { service } from '@/service';
 import './courseList.scss';
 
 const { Sider, Content } = Layout;
 
-const columns = [
+const courseTypeMap = {
+  'B': '必修',
+  'X': '选修',
+  'G': '公选',
+  'S': '实践',
+};
+
+const columns = () => [
   { title: '课程计划号', dataIndex: 'id', ellipsis: true },
   { title: '课程名称', dataIndex: 'name', ellipsis: true },
   { title: '专业', dataIndex: 'profession', ellipsis: true },
-  { title: '类型', dataIndex: 'type', ellipsis: true },
+  {
+    title: '类型',
+    dataIndex: 'type',
+    ellipsis: true,
+    render: (key, value) => courseTypeMap[value.type] || '未知类型',
+  },
   { title: '简介', dataIndex: 'introduction', ellipsis: true },
+  {
+    title: '选课状态',
+    dataIndex: 'is_selected',
+    key: 'is_selected',
+    render: (isSelected) => {
+      return isSelected === 1 ? (
+        <div style={{ color: 'green', fontSize: '12px' }} >
+          <CheckCircleOutlined style={{ color: 'green', fontSize: '16px' }} />  
+          &nbsp; 已选 
+        </div>
+      ) : (
+        <div style={{ color: 'red', fontSize: '12px' }} >
+          <CloseCircleOutlined style={{ color: 'red', fontSize: '16px' }} />
+          &nbsp; 未选 
+        </div>
+      );
+    },
+  },
   {
     title: '操作',
     valueType: 'option',
     render: (_, row) => [
-      <TableDropdown
-        key="more"
-        onSelect={(key) => message.info(key)}
-        menus={[
-          { key: 'copy', name: '复制' },
-          { key: 'delete', name: '删除' },
-        ]}
-      />,
+      <Button
+        key="select"
+        icon={<FormOutlined />}
+        onClick={() => console.log("选课")}
+        type="link"
+      >
+        选课
+      </Button>,
     ],
   },
 ];
 
+
 const CourseList = () => {
   const [selectedMenu, setSelectedMenu] = useState('1');
-  const [inputSearchParams, setInputSearchParams] = useState({ course_name: '', major: '' });
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(9);
   const [totalPages, setTotalPages] = useState(0);
+  const [inputSearchParams, setInputSearchParams] = useState({ course_name: '', major: '' });
 
   const fetchCourses = async (currentPage = page, currentPageSize = pageSize) => {
     setLoading(true);
@@ -56,21 +87,20 @@ const CourseList = () => {
     fetchCourses();
   }, [page, pageSize]);
 
+  const handleTableChange = (pagination) => {
+    setPage(pagination.current);
+    setPageSize(pagination.pageSize);
+    fetchCourses(pagination.current, pagination.pageSize);
+  };
+
   const handleSearch = () => {
-    setSearchParams(inputSearchParams);
+    setInputSearchParams(inputSearchParams);
     fetchCourses(1, pageSize);
   };
 
   const handleClearSearch = () => {
     setInputSearchParams({ course_name: '', major: '' });
-    setSearchParams({ course_name: '', major: '' });
     fetchCourses(1, pageSize);
-  };
-
-  const handleTableChange = (pagination) => {
-    setPage(pagination.current);
-    setPageSize(pagination.pageSize);
-    fetchCourses(pagination.current, pagination.pageSize);
   };
 
   const menuItems = [
@@ -94,7 +124,7 @@ const CourseList = () => {
         <Content className="course-content">
           <ProCard>
             <ProTable
-              columns={columns}
+              columns={columns()}
               dataSource={data}
               loading={loading}
               rowKey="id"
@@ -103,14 +133,9 @@ const CourseList = () => {
               pagination={{
                 current: page,
                 pageSize: pageSize,
-                total: totalPages * pageSize, 
-
+                total: totalPages * pageSize,
               }}
-              className="protable"
-              options={{
-                density: false,
-                expandable: true,
-              }}
+              className='protable'
               onChange={handleTableChange}
               toolBarRender={() => [
                 <Input.Search

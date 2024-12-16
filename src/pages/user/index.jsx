@@ -29,7 +29,7 @@ const User = () => {
     setUserType(userTypeFromStorage);
 
     const fetchUserInfo = async () => {
-      setLoading(true); // 开始加载
+      setLoading(true);
       try {
         if (userTypeFromStorage === "teacher") {
           const res = await service.teacher.getInfo();
@@ -42,7 +42,7 @@ const User = () => {
         console.error("获取用户信息失败:", error);
         message.error("无法获取用户信息，请检查您的网络连接或稍后重试！");
       } finally {
-        setLoading(false); // 加载结束
+        setLoading(false);
       }
     };
 
@@ -61,7 +61,7 @@ const User = () => {
       );
 
       const updateUserInfo = async () => {
-        setSaving(true); // 更新按钮加载状态
+        setSaving(true);
         try {
           if (userType === "teacher") {
             await service.teacher.updateInfo(
@@ -92,7 +92,7 @@ const User = () => {
           console.error("更新信息失败:", error);
           message.error("更新失败，无法连接服务器，请稍后再试！");
         } finally {
-          setSaving(false); // 按钮加载状态结束
+          setSaving(false);
         }
       };
 
@@ -171,7 +171,7 @@ const User = () => {
 
       <Modal
         title="更新个人信息"
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleSave}
         onCancel={() => setIsModalVisible(false)}
         okText="保存"
