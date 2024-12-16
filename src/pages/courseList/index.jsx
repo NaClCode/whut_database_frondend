@@ -1,32 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Button, message, Input } from 'antd';
 import { ProCard, ProTable, TableDropdown } from '@ant-design/pro-components';
-import {
-  BookOutlined,
-  ReadOutlined,
-  CheckCircleOutlined,
-} from '@ant-design/icons';
+import { BookOutlined, ReadOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { service } from '@/service';
+import './courseList.scss';
 
 const { Sider, Content } = Layout;
 
-const data = [
-  { course_id: 'C001', course_name: '计算机科学导论', major: '计算机科学与技术', department: '计算机学院', credits: 3, description: '本课程介绍计算机科学的基本概念和基础知识。' },
-  { course_id: 'C002', course_name: '数据结构', major: '计算机科学与技术', department: '计算机学院', credits: 4, description: '本课程讲解常见数据结构及其应用。' },
-  { course_id: 'C003', course_name: '操作系统', major: '计算机科学与技术', department: '计算机学院', credits: 3, description: '本课程介绍操作系统的基础原理和应用。' },
-  { course_id: 'C004', course_name: '数据库系统', major: '计算机科学与技术', department: '计算机学院', credits: 3, description: '本课程介绍数据库的基本理论和技术。' },
-  { course_id: 'C005', course_name: '软件工程', major: '软件工程', department: '计算机学院', credits: 3, description: '本课程教授软件开发的基本流程与方法。' },
-];
-
 const columns = [
-  { title: '课程计划号', dataIndex: 'course_id', ellipsis: true, search: true },
-  { title: '课程名称', dataIndex: 'course_name', ellipsis: true, search: true },
-  { title: '专业', dataIndex: 'major', search: true },
-  { title: '学院', dataIndex: 'department', search: true },
-  { title: '学分', dataIndex: 'credits', valueType: 'digit' },
+  { title: '课程计划号', dataIndex: 'id', ellipsis: true },
+  { title: '课程名称', dataIndex: 'name', ellipsis: true },
+  { title: '专业', dataIndex: 'profession', ellipsis: true },
+  { title: '类型', dataIndex: 'type', ellipsis: true },
+  { title: '简介', dataIndex: 'introduction', ellipsis: true },
   {
     title: '操作',
     valueType: 'option',
-    render: (text, row) => [
+    render: (_, row) => [
       <TableDropdown
         key="more"
         onSelect={(key) => message.info(key)}
@@ -42,31 +32,46 @@ const columns = [
 const CourseList = () => {
   const [selectedMenu, setSelectedMenu] = useState('1');
   const [inputSearchParams, setInputSearchParams] = useState({ course_name: '', major: '' });
-  const [searchParams, setSearchParams] = useState({ course_name: '', major: '' });
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
 
-  const expandedRowRender = (record) => (
-    <div>
-      <p>
-        <strong>课程简介:</strong> {record.description}
-      </p>
-    </div>
-  );
+  const fetchCourses = async (currentPage = page, currentPageSize = pageSize) => {
+    setLoading(true);
+    try {
+      const res = await service.courseplan.list(currentPage, currentPageSize);
+      const responseData = res.data.data;
+      setData(responseData.data);
+      setTotalPages(responseData.total_pages);
+      setLoading(false);
+    } catch (err) {
+      message.error(`加载失败: ${err}`);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCourses();
+  }, [page, pageSize]);
 
   const handleSearch = () => {
     setSearchParams(inputSearchParams);
+    fetchCourses(1, pageSize);
   };
 
   const handleClearSearch = () => {
     setInputSearchParams({ course_name: '', major: '' });
     setSearchParams({ course_name: '', major: '' });
+    fetchCourses(1, pageSize);
   };
 
-  const filteredData = data.filter((item) => {
-    return (
-      (searchParams.course_name ? item.course_name.includes(searchParams.course_name) : true) &&
-      (searchParams.major ? item.major.includes(searchParams.major) : true)
-    );
-  });
+  const handleTableChange = (pagination) => {
+    setPage(pagination.current);
+    setPageSize(pagination.pageSize);
+    fetchCourses(pagination.current, pagination.pageSize);
+  };
 
   const menuItems = [
     { key: '1', icon: <BookOutlined />, label: '选课' },
@@ -75,36 +80,38 @@ const CourseList = () => {
   ];
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      {/* Sidebar */}
-      <Sider collapsible>
+    <Layout className="course-layout">
+      <Sider collapsible className="course-sider">
         <Menu
-          theme="dark"
+          theme="light"
           defaultSelectedKeys={['1']}
           mode="inline"
           items={menuItems}
           onSelect={({ key }) => setSelectedMenu(key)}
         />
       </Sider>
-
-      {/* Content Area */}
       <Layout>
-        <Content style={{ margin: '16px' }}>
+        <Content className="course-content">
           <ProCard>
             <ProTable
               columns={columns}
+              dataSource={data}
+              loading={loading}
+              rowKey="id"
+              headerTitle="课程列表"
               search={false}
+              pagination={{
+                current: page,
+                pageSize: pageSize,
+                total: totalPages * pageSize, 
+
+              }}
+              className="protable"
               options={{
                 density: false,
                 expandable: true,
               }}
-              dataSource={filteredData}
-              pagination={{ pageSize: 5 }}
-              rowKey="course_id"
-              headerTitle="课程列表"
-              expandable={{
-                expandedRowRender,
-              }}
+              onChange={handleTableChange}
               toolBarRender={() => [
                 <Input.Search
                   key="course_name_search"
@@ -112,7 +119,6 @@ const CourseList = () => {
                   value={inputSearchParams.course_name}
                   onChange={(e) => setInputSearchParams({ ...inputSearchParams, course_name: e.target.value })}
                   onSearch={handleSearch}
-                  style={{ width: 200 }}
                 />,
                 <Input.Search
                   key="major_search"
@@ -120,7 +126,6 @@ const CourseList = () => {
                   value={inputSearchParams.major}
                   onChange={(e) => setInputSearchParams({ ...inputSearchParams, major: e.target.value })}
                   onSearch={handleSearch}
-                  style={{ width: 200 }}
                 />,
                 <Button key="clear" onClick={handleClearSearch} type="default">
                   清除搜索

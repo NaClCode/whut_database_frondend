@@ -1,0 +1,33 @@
+.ant-layout-sider-trigger {
+    background-color: #fff !important;
+    color: #000 !important; 
+    border-top: 1px solid #f0f0f0; 
+  }
+  
+.course-layout {
+    min-height: 91vh;
+    
+    .protable {
+        height: 84vh;
+    }
+
+    .course-sider {
+        background-color: #fff;
+      }
+      
+    .course-content {
+        margin: 16px;
+    }
+      
+    .input-search {
+        width: 200px;
+        margin-right: 8px;
+    }
+      
+    .clear-search-button {
+        margin-left: 8px;
+    }
+}
+  
+  
+  

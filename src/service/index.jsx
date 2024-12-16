@@ -38,7 +38,7 @@ const teacher = {
       baseURL,
       method: 'get',
       url: '/teacher/listInfo',
-      data: {
+      params: {
         id
       }
     })
@@ -72,63 +72,152 @@ const student = {
 }
 
 const user = {
-    auth: (email, password, type) => {
-      return axios({
-        baseURL,
-        method: 'post',
-        url: '/user/auth',
-        data: {
-          email,
-          password,
-          type
-        }
-      })
-    },
-    check: () => {
-      return axios({
-        baseURL,
-        method: 'post',
-        url: '/user/check'
-      })
-    },
-    register: (email, username, password, type) => {
-      return axios({
-        baseURL,
-        method: 'post',
-        url: '/user/register',
-        data: {
-          username,
-          email,
-          password,
-          type
-        }
-      })
-    },
-    resendEmail: (email, password, type) => {
-      return axios({
-        baseURL,
-        method: 'post',
-        url: '/user/resendEmail',
-        data: {
-          email,
-          password,
-          type
-        }
-      })
-    },
-    feedback: (title, content) => {
-      return axios({
-        baseURL,
-        method: 'post',
-        url: '/user/feedback',
-        data: {
-          title,
-          content
-        }
-      })
-    },
+  auth: (email, password, type) => {
+    return axios({
+      baseURL,
+      method: 'post',
+      url: '/user/auth',
+      data: {
+        email,
+        password,
+        type
+      }
+    })
+  },
+  check: () => {
+    return axios({
+      baseURL,
+      method: 'post',
+      url: '/user/check'
+    })
+  },
+  register: (email, username, password, type) => {
+    return axios({
+      baseURL,
+      method: 'post',
+      url: '/user/register',
+      data: {
+        username,
+        email,
+        password,
+        type
+      }
+    })
+  },
+  resendEmail: (email, password, type) => {
+    return axios({
+      baseURL,
+      method: 'post',
+      url: '/user/resendEmail',
+      data: {
+        email,
+        password,
+        type
+      }
+    })
+  },
+  feedback: (title, content) => {
+    return axios({
+      baseURL,
+      method: 'post',
+      url: '/user/feedback',
+      data: {
+        title,
+        content
+      }
+    })
+  },
 }
 
+const courseplan = {
+  detail: (id) => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/plan/detail',
+      params: {
+        id
+      }
+    })
+  },
+  list: (page, pagesize) => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/plan/list',
+      params: {
+        page,
+        pagesize
+      }
+    })
+  },
+  search: (college, profession, credit, page, pagesize) => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/plan/search',
+      params: {
+        college,
+        profession,
+        credit,
+        page,
+        pagesize
+      }
+    })
+  }
+}
 
+const courseclasser = {
+  detail: (id) => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/classer/detail',
+      params: {
+        id
+      }
+    })
+  },
+  list: (id, page, pagesize) => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/plan/list',
+      params: {
+        id,
+        page,
+        pagesize
+      }
+    })
+  },
+}
 
-export const service = {user, root, student, teacher}
+const courseschedule = {
+  detail: (id) => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/schedule/detail',
+      params: {
+        id
+      }
+    })
+  },
+  list: (id, page, pagesize) => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/schedule/list',
+      params: {
+        id,
+        page,
+        pagesize
+      }
+    })
+  },
+}
+
+export const service = {user, root, 
+                        student, teacher,
+                        courseplan, courseclasser,
+                        courseschedule,}
