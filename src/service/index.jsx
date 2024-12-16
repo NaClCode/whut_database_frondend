@@ -151,16 +151,19 @@ const courseplan = {
       }
     })
   },
-  search: (college, profession, credit, page, pagesize) => {
+  search: (page, pagesize, name, college, profession, credit, is_selected, type) => {
     return axios({
       baseURL,
       method: 'get',
       url: '/course/plan/search',
       params: {
-        college,
-        profession,
+        name, 
+        college, 
+        profession, 
         credit,
-        page,
+        is_selected, 
+        type,
+        page, 
         pagesize
       }
     })
