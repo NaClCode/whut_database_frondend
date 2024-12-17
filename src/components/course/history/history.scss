@@ -1,0 +1,71 @@
+.course-content {
+    margin: 16px;
+
+    .is-selected-div {
+        color: green;
+        font-size: 12px;
+    }
+    
+    .is-selected-outlined {
+        color: green;
+        font-size: 16px;
+    }
+      
+    .isnot-selected-div {
+        color: red;
+        font-size: 12px;
+    }
+    
+    .isbot-selected-outlined {
+        color: red;
+        font-size: 16px;
+    }
+
+    .protable {
+        height: 84vh;
+
+        .ant-input {
+            height: 36px;
+            font-size: 14px;
+        }
+  
+        .search-input {
+            margin-right: 5px;
+            width: 150px;
+        }
+  
+        .filter-select {
+            margin-right: 5px;
+            width: 150px;
+            height: 36px;
+        }
+  
+        .search-button {
+            background-color: transparent;
+            color: #595959;
+            border: none;
+            width: 30px;
+            height: 36px;
+            margin-right: 0px;
+    
+            &:hover {
+                background-color: transparent;
+            }
+        }
+  
+        .clear-button {
+            background-color: transparent;
+            color: #595959;
+            border: none;
+            width: 30px;
+            height: 36px;
+            font-size: 14px;
+            margin-right: 0px;
+    
+            &:hover {
+                background-color: transparent;
+            }
+        }
+    }
+  }
+  

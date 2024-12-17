@@ -3,6 +3,7 @@ import { Layout } from 'antd';
 import CourseSider from '@/components/sider';
 import CourseContent from '@/components/course/content';
 import CourseTable from '@/components/course/table';
+import CourseHistoryTable from '@/components/course/history';
 import './course.scss';
 
 const { Content } = Layout;
@@ -15,7 +16,7 @@ const CourseList = () => {
       case '1':
         return <CourseContent/>;
       case '2':
-        return <div>2</div>;
+        return <CourseHistoryTable/>;
       case '3':
         return <CourseTable/>;
       default:
