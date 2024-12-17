@@ -61,8 +61,7 @@ const CourseContentClasser = ({ setMode, classplanid }) => {
           teacher: item.teacher || '未知教师',
           currentStudents: item.num || 0,
           maxStudents: item.max_num || 0,
-          time: '未提供',
-          isEnrolled: false,
+          is_enrolled: item.is_enrolled,
         }))
       );
 
@@ -78,8 +77,8 @@ const CourseContentClasser = ({ setMode, classplanid }) => {
   const fetchCourseDetail = async (id) => {
     setDetailLoading(true);
     try {
-      const { data } = await service.courseclasser.detail(id); // 获取课程详情
-      setCourseDetail(data.data); // 保存详情数据
+      const { data } = await service.courseclasser.detail(id);
+      setCourseDetail(data.data); 
     } catch (error) {
       message.error('加载课程详情失败，请重试！');
       console.error(error);
@@ -92,22 +91,28 @@ const CourseContentClasser = ({ setMode, classplanid }) => {
     fetchCourseData(currentPage);
   }, [classplanid, currentPage]);
 
-  const updateCourseStatus = (index, isEnrolling) => {
-    setCourses((prevCourses) =>
-      prevCourses.map((course, i) =>
-        i === index
-          ? {
-              ...course,
-              isEnrolled: isEnrolling,
-              currentStudents: course.currentStudents + (isEnrolling ? 1 : -1),
-            }
-          : course
-      )
-    );
-
-    const actionMessage = isEnrolling ? '选课成功' : '退课成功';
-    message.success(actionMessage);
+  const updateCourseStatus = async (index, isEnrolling) => {
+    const course = courses[index];
+    try {
+      if (isEnrolling) {
+        await service.course.enroll(course.id);
+      } else {
+        await service.course.drop(course.id);
+      }
+  
+      fetchCourseData(currentPage);
+  
+      const actionMessage = isEnrolling ? '选课成功' : '退课成功';
+      message.success(actionMessage);
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || '未知错误';
+      const actionMessage = isEnrolling ? `选课失败: ${errorMessage}` : `退课失败: ${errorMessage}`;
+  
+      message.error(actionMessage);
+      console.error('操作失败:', errorMessage);
+    }
   };
+  
 
   const handlePageChange = (page) => setCurrentPage(page);
 
@@ -128,8 +133,8 @@ const CourseContentClasser = ({ setMode, classplanid }) => {
         title={
           <div className="course-card-title">
             <span>课程ID：{course.id}</span>
-            <Tag color={course.isEnrolled ? 'green' : 'red'}>
-              {course.isEnrolled ? '已选' : '未选'}
+            <Tag color={course.is_enrolled ? 'green' : 'red'}>
+              {course.is_enrolled ? '已选' : '未选'}
             </Tag>
           </div>
         }
@@ -151,14 +156,14 @@ const CourseContentClasser = ({ setMode, classplanid }) => {
             <Button
               type="primary"
               onClick={() => updateCourseStatus(index, true)}
-              disabled={course.isEnrolled || course.currentStudents >= course.maxStudents}
+              disabled={course.is_enrolled || course.currentStudents >= course.maxStudents}
             >
-              {course.isEnrolled ? '已选' : '选课'}
+              {course.is_enrolled ? '已选' : '选课'}
             </Button>
             <Button
               danger
               onClick={() => updateCourseStatus(index, false)}
-              disabled={!course.isEnrolled}
+              disabled={!course.is_enrolled}
             >
               退课
             </Button>
