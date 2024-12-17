@@ -218,9 +218,59 @@ const courseschedule = {
       }
     })
   },
+
+}
+
+const course = {
+  enroll: (classid) => {
+    return axios({
+      baseURL,
+      method: 'post',
+      url: '/course/enroll',
+      data: {
+        classid
+      }
+    })
+  },
+  drop: (classid) => {
+    return axios({
+      baseURL,
+      method: 'delete',
+      url: '/course/drop',
+      data: {
+        classid
+      }
+    })
+  },
+  list: (page, pagesize, class_id, action_type) => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/list',
+      params: {
+        page,
+        pagesize,
+        class_id,
+        action_type
+      }
+    })
+  },
+  history: (page, pagesize, class_id, action_type) => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/history',
+      params: {
+        page,
+        pagesize,
+        class_id,
+        action_type
+      }
+    })
+  }
 }
 
 export const service = {user, root, 
                         student, teacher,
                         courseplan, courseclasser,
-                        courseschedule,}
+                        courseschedule, course}
