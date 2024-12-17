@@ -1,39 +1,89 @@
 .course-content-classer {
-    padding: 0px;
-  
-    .back-button {
+  padding: 0px;
+
+  .back-button {
+    margin-bottom: 10px;
+  }
+
+  .course-card {
+    margin-bottom: 20px;
+
+    h2 {
       margin-bottom: 10px;
     }
-  
-    .course-card {
-      margin-bottom: 0px;
-  
-      .course-title {
-        margin-bottom: 10px;
-      }
-  
-      .course-details {
-        display: flex;
-        flex-wrap: wrap;
-        row-gap: 10px;
-  
-        .detail-item {
-          width: 20%;
-          strong {
-            margin-right: 5px;
-          }
-        }
-      }
-    }
-  
-    .class-list {
-      margin-top: 20px;
-  
-      .class-card {
-        .ant-space-vertical {
-          width: 100%;
+
+    .course-details {
+      display: flex;
+      flex-wrap: wrap;
+      row-gap: 10px;
+
+      .detail-item {
+        width: 20%;
+
+        strong {
+          margin-right: 5px;
         }
       }
     }
   }
-  
+
+  .class-list {
+    margin-top: 20px;
+
+    .class-card {
+      .ant-space-vertical {
+        width: 100%;
+      }
+    }
+  }
+
+  .course-card-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.course-detail-modal {
+  .ant-modal-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .course-detail-content {
+    p {
+      margin-bottom: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+
+      strong {
+        color: #000;
+      }
+    }
+
+    .course-schedule-table {
+      margin-top: 10px;
+
+      .ant-table {
+        background: #fafafa;
+        border: 1px solid #dcdcdc;
+      }
+
+      .ant-table-thead > tr > th {
+        background-color: #f0f2f5;
+        color: #333;
+        font-weight: bold;
+      }
+
+      .ant-table-tbody > tr > td {
+        color: #666;
+        font-size: 13px;
+      }
+
+      .ant-table-bordered .ant-table-container {
+        border-radius: 8px;
+      }
+    }
+  }
+}

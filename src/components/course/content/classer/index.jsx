@@ -1,10 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Col, Row, Typography, Tag, Divider, Space, Button, message, Spin, Pagination } from 'antd';
+import { Card, Col, Row, Typography, Tag, Divider, Space, Button, message, Table, Spin, Pagination, Modal } from 'antd';
 import { LeftOutlined } from '@ant-design/icons';
 import { service } from '@/service';
 import './classer.scss';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
+
+const columns = [
+  {
+    title: '开始时间',
+    dataIndex: 'start_time',
+    key: 'start_time',
+  },
+  {
+    title: '结束时间',
+    dataIndex: 'end_time',
+    key: 'end_time',
+  },
+  {
+    title: '教室',
+    dataIndex: 'classroom',
+    key: 'classroom',
+  },
+  {
+    title: '类型',
+    dataIndex: 'classtype',
+    key: 'classtype',
+  },
+];
 
 const CourseContentClasser = ({ setMode, classplanid }) => {
   const [courseOverview, setCourseOverview] = useState({});
@@ -12,16 +35,17 @@ const CourseContentClasser = ({ setMode, classplanid }) => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [courseDetail, setCourseDetail] = useState(null); 
+  const [detailLoading, setDetailLoading] = useState(false);
   const pageSize = 10;
 
-  // 加载课程详情和班级列表
   const fetchCourseData = async (page = 1) => {
     setLoading(true);
     try {
       const { data: planData } = await service.courseplan.detail(classplanid);
       const { data: classerData } = await service.courseclasser.list(classplanid, page, pageSize);
 
-      // 设置课程概述
       setCourseOverview({
         name: planData.data.name || '未命名课程',
         description: planData.data.introduction || '暂无简介',
@@ -31,7 +55,6 @@ const CourseContentClasser = ({ setMode, classplanid }) => {
         type: planData.data.type || '未知',
       });
 
-      // 设置课程列表和总数据量
       setCourses(
         classerData.data.data.map((item) => ({
           id: item.id,
@@ -52,11 +75,23 @@ const CourseContentClasser = ({ setMode, classplanid }) => {
     }
   };
 
+  const fetchCourseDetail = async (id) => {
+    setDetailLoading(true);
+    try {
+      const { data } = await service.courseclasser.detail(id); // 获取课程详情
+      setCourseDetail(data.data); // 保存详情数据
+    } catch (error) {
+      message.error('加载课程详情失败，请重试！');
+      console.error(error);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchCourseData(currentPage);
   }, [classplanid, currentPage]);
 
-  // 更新选课状态
   const updateCourseStatus = (index, isEnrolling) => {
     setCourses((prevCourses) =>
       prevCourses.map((course, i) =>
@@ -71,65 +106,80 @@ const CourseContentClasser = ({ setMode, classplanid }) => {
     );
 
     const actionMessage = isEnrolling ? '选课成功' : '退课成功';
-    message.success(`${actionMessage}`);
+    message.success(actionMessage);
   };
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
+  const handlePageChange = (page) => setCurrentPage(page);
+
+  const handleCourseClick = async (course) => {
+    setSelectedCourse(course);
+    await fetchCourseDetail(course.id);
   };
 
-  const renderCourseCard = (course, index) => {
-    const { teacher, time, maxStudents, currentStudents, isEnrolled } = course;
-    return (
-      <Col span={6} key={index}>
-        <Card hoverable title={`教师：${teacher}`} bordered className="class-card">
-          <Space direction="vertical" size="middle">
-            <Text>
-              <strong>上课安排：</strong> {time}
-            </Text>
-            <Text>
-              <strong>人数：</strong> {maxStudents} / <Tag color={currentStudents >= maxStudents ? 'red' : 'green'}>
-                {currentStudents}
-              </Tag>
-            </Text>
-            <Space>
-              <Button
-                type="primary"
-                onClick={() => updateCourseStatus(index, true)}
-                disabled={isEnrolled || currentStudents >= maxStudents}
-              >
-                {isEnrolled ? '已选课' : '选课'}
-              </Button>
-              <Button
-                danger
-                onClick={() => updateCourseStatus(index, false)}
-                disabled={!isEnrolled}
-              >
-                退课
-              </Button>
-            </Space>
-          </Space>
-        </Card>
-      </Col>
-    );
+  const handleModalClose = () => {
+    setSelectedCourse(null);
+    setCourseDetail(null);
   };
 
-  if (loading) {
-    return <Spin tip="加载中..." />;
-  }
-
-  return (
-    <div className="course-content-classer">
-      <Button
-        type="link"
-        icon={<LeftOutlined />}
-        onClick={() => setMode('plan')}
-        className="back-button"
+  const renderCourseCard = (course, index) => (
+    <Col span={6} key={index}>
+      <Card
+        hoverable
+        title={
+          <div className="course-card-title">
+            <span>课程ID：{course.id}</span>
+            <Tag color={course.isEnrolled ? 'green' : 'red'}>
+              {course.isEnrolled ? '已选' : '未选'}
+            </Tag>
+          </div>
+        }
+        bordered
+        className="class-card"
       >
+        <Space direction="vertical" size="middle">
+          <Text>
+            <strong>教师：</strong> {course.teacher}
+          </Text>
+          <Text>
+            <strong>人数：</strong>
+            {`${course.maxStudents} / `}
+            <Tag color={course.currentStudents === course.maxStudents ? 'red' : 'blue'}>
+              {course.currentStudents}
+            </Tag>
+          </Text>
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => updateCourseStatus(index, true)}
+              disabled={course.isEnrolled || course.currentStudents >= course.maxStudents}
+            >
+              {course.isEnrolled ? '已选' : '选课'}
+            </Button>
+            <Button
+              danger
+              onClick={() => updateCourseStatus(index, false)}
+              disabled={!course.isEnrolled}
+            >
+              退课
+            </Button>
+            <Button type="default" onClick={() => handleCourseClick(course)}>
+              详情
+            </Button>
+          </Space>
+        </Space>
+      </Card>
+    </Col>
+  );
+
+  return loading ? (
+    <Spin tip="加载中..." />
+  ) : (
+    <div className="course-content-classer">
+      <Button type="link" icon={<LeftOutlined />} onClick={() => setMode('plan')} className="back-button">
         返回
       </Button>
 
-      <Card className="course-card" >
+      <Card className="course-card">
         <h2>{courseOverview.name}</h2>
         <Divider />
         <Row className="course-details">
@@ -163,6 +213,47 @@ const CourseContentClasser = ({ setMode, classplanid }) => {
         showSizeChanger={false}
         style={{ marginTop: '16px', textAlign: 'center' }}
       />
+
+      <Modal 
+        title="课程详情" 
+        open={!!selectedCourse} 
+        onCancel={handleModalClose} 
+        footer={null} 
+        width={600}
+        className="course-detail-modal"
+      >
+        {detailLoading ? (
+          <Spin tip="加载详情中..." />
+        ) : (
+          courseDetail && (
+            <div className="course-detail-content"> 
+              <p>
+                <strong>课程ID：</strong> {courseDetail.class_id}
+              </p>
+              <p>
+                <strong>教师：</strong> {courseDetail.teacher_name || '未提供'}
+              </p>
+              <p>
+                <strong>当前人数：</strong> {courseDetail.class_num} / {courseDetail.max_num}
+              </p>
+              <div>
+                <strong>课程安排：</strong>
+                <Table 
+                  className="course-schedule-table"
+                  dataSource={courseDetail.schedules.map((item, idx) => ({ 
+                    ...item, 
+                    key: idx 
+                  }))} 
+                  columns={columns} 
+                  pagination={false} 
+                  bordered 
+                  size="middle" 
+                />
+              </div>
+            </div>
+          )
+        )}
+      </Modal>
     </div>
   );
 };
