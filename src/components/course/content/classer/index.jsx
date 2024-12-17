@@ -78,22 +78,17 @@ const CourseContentClasser = ({ setMode, classplanid }) => {
     setCurrentPage(page);
   };
 
-  // 渲染单个班级卡片
   const renderCourseCard = (course, index) => {
     const { teacher, time, maxStudents, currentStudents, isEnrolled } = course;
     return (
-      <Col span={8} key={index}>
+      <Col span={6} key={index}>
         <Card hoverable title={`教师：${teacher}`} bordered className="class-card">
           <Space direction="vertical" size="middle">
             <Text>
               <strong>上课安排：</strong> {time}
             </Text>
             <Text>
-              <strong>最大人数：</strong> {maxStudents}
-            </Text>
-            <Text>
-              <strong>当前人数：</strong>
-              <Tag color={currentStudents >= maxStudents ? 'red' : 'green'}>
+              <strong>人数：</strong> {maxStudents} / <Tag color={currentStudents >= maxStudents ? 'red' : 'green'}>
                 {currentStudents}
               </Tag>
             </Text>
@@ -134,11 +129,8 @@ const CourseContentClasser = ({ setMode, classplanid }) => {
         返回
       </Button>
 
-      {/* 课程概述 */}
-      <Card bordered={false} className="course-card">
-        <Title level={4} className="course-title">
-          {courseOverview.name}
-        </Title>
+      <Card className="course-card" >
+        <h2>{courseOverview.name}</h2>
         <Divider />
         <Row className="course-details">
           <Col className="detail-item">
@@ -159,12 +151,10 @@ const CourseContentClasser = ({ setMode, classplanid }) => {
         </Row>
       </Card>
 
-      {/* 班级列表 */}
       <Row gutter={[16, 16]} className="class-list">
         {courses.map(renderCourseCard)}
       </Row>
 
-      {/* 分页 */}
       <Pagination
         current={currentPage}
         pageSize={pageSize}

@@ -61,10 +61,9 @@ const columns = (setMode, setPlanID) => [
   },
 ];
 
-const CourseContentPlan = ({setMode, setPlanID}) => {
+const CourseContentPlan = ({setMode, setPlanID, page, setPage}) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(9);
   const [total, setTotal] = useState(0);
   const [inputSearchParams, setInputSearchParams] = useState({ name: '', college: '', profession: '', credit: '', is_selected: '', type: '' });
