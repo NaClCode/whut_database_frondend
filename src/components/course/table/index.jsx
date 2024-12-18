@@ -28,6 +28,7 @@ const data = {
 
 const CourseSchedule = () => {
   const [selectedDate, setSelectedDate] = useState('2024-06-10');
+  const [currentMonth, setCurrentMonth] = useState('');
 
   const dateCellRender = (value) => {
     const dateKey = value.format('YYYY-MM-DD');
@@ -48,12 +49,19 @@ const CourseSchedule = () => {
     setSelectedDate(dateKey);
   };
 
+  const handlePanelChange = (value, mode) => {
+    const month = value.format('YYYY-MM');
+    setCurrentMonth(month);
+    console.log('当前显示的月份:', month);
+  };
+
   return (
     <Layout className="layout">
       <Sider className="sider" width={900}>
         <Calendar
           dateCellRender={dateCellRender}
           onSelect={handleDateSelect}
+          onPanelChange={handlePanelChange}
           className="calendar"
         />
       </Sider>

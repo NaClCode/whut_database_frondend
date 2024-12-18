@@ -13,7 +13,7 @@ const teacher = {
   updateInfo: (username, password, sex, introduction, profession, college, idcard) => {
     return axios({
       baseURL,
-      method: 'post',
+      method: 'put',
       url: '/teacher/updateInfo',
       data: {
         username,
@@ -56,7 +56,7 @@ const student = {
   updateInfo: (username, password, sex, classer, profession, college, idcard) => {
     return axios({
       baseURL,
-      method: 'post',
+      method: 'put',
       url: '/student/updateInfo',
       data: {
         username,
@@ -267,7 +267,8 @@ const course = {
         action_type
       }
     })
-  }
+  },
+
 }
 
 export const service = {user, root, 
