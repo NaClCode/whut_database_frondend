@@ -8,7 +8,7 @@ function Home() {
     <div className="home">
       <div className="container">
         <div className="left-section">
-          <h1>选课系统</h1>
+          <h1>教务系统</h1>
           <button className="login-button" onClick={() => navigate('/login')}>登录</button>
           <button className="register-button" onClick={() => navigate('/register')}>注册</button>
         </div>

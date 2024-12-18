@@ -5,7 +5,6 @@ import { useLocation } from 'react-router-dom';
 import Sider from 'antd/es/layout/Sider';
 import Router from './router';
 import { checkToken } from './utils/checkToken';
-import { Button } from 'antd';
 import Draggable from 'react-draggable'
 import './App.scss'
 const App = () => {
