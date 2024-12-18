@@ -4,6 +4,7 @@ import CourseSider from '@/components/sider';
 import CourseContent from '@/components/course/content';
 import CourseTable from '@/components/course/table';
 import CourseHistoryTable from '@/components/course/history';
+import CourseGrades from '@/components/course/grade';
 import './course.scss';
 
 const { Content } = Layout;
@@ -19,8 +20,8 @@ const CourseList = () => {
         return <CourseHistoryTable/>;
       case '3':
         return <CourseTable/>;
-      default:
-        return <div>暂无内容</div>;
+      case '4':
+        return <CourseGrades/>;
     }
   };
 
