@@ -29,16 +29,6 @@ const App = () => {
     return true;
   }
 
-  const showAdminMenu = () => {
-    const includePaths = ['/admin'];
-    for (let path of includePaths) {
-      if (pathname.startsWith(path)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   const headerStyle = {
     padding: "0",
     backgroundColor: "rgba(255, 255, 255, 0)",
@@ -55,15 +45,10 @@ const App = () => {
 
   return (
     <Layout>
-      <Header style={headerStyle} hidden={!showNavbar()}>
+      <Header style={headerStyle}>
         <Navbar />
       </Header>
       <Layout>
-        {showAdminMenu() ? (
-          <Sider width="256px" style={{ backgroundColor: "white" }}>
-            <AdminMenu />
-          </Sider>
-        ) : null}
         <Content style={{ minHeight: "92vh" }}>
           <Router />
         </Content>

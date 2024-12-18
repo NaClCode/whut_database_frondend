@@ -6,9 +6,10 @@ import Register from '@/pages/register';
 import Feedback from '@/pages/feedback';
 import Course from '@/pages/course';
 import User from '@/pages/user';
+import Admin from '@/pages/admin';
 
 const Router = () => {
-  const userType = localStorage.getItem('userType'); // Retrieve the user type from localStorage
+  const userType = localStorage.getItem('userType'); 
 
   return (
     <Routes>
@@ -16,9 +17,10 @@ const Router = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/feedback" element={<Feedback />} />
-      {userType === 'students' && <Route path="/course" element={<Course />} />}
+      {userType === 'student' && <Route path="/course" element={<Course />} />}
       <Route path="/user" element={<User />} />
-      {userType !== 'students' && <Route path="/course" element={<Navigate to="/" replace />} />}
+      <Route path='/admin' element={<Admin/>} />
+      {userType !== 'student' && <Route path="/course" element={<Navigate to="/" replace />} />}
     </Routes>
   );
 };

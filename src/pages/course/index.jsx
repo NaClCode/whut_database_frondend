@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Layout } from 'antd';
-import CourseSider from '@/components/sider';
+import CourseSider from '@/components/course/sider';
 import CourseContent from '@/components/course/content';
 import CourseTable from '@/components/course/table';
 import CourseHistoryTable from '@/components/course/history';
@@ -9,7 +9,7 @@ import './course.scss';
 
 const { Content } = Layout;
 
-const CourseList = () => {
+const Course = () => {
   const [selectedMenu, setSelectedMenu] = useState('1');
 
   const renderContent = () => {
@@ -37,4 +37,4 @@ const CourseList = () => {
   );
 };
 
-export default CourseList;
+export default Course;
