@@ -24,7 +24,7 @@ const columns = () => [
     render: (_, record) => courseTypeMap[record.type] || '未知类型',
     width: 100,
   },
-  { title: '学分', dataIndex: 'credit', ellipsis: true, width: 100 },
+  { title: '学分', dataIndex: 'credits', ellipsis: true, width: 100 },
   { title: '教师', dataIndex: 'teacher', ellipsis: true },
   { title: '分数', dataIndex: 'grade', ellipsis: true, width: 100 },
 ];
