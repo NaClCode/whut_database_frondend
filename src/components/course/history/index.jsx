@@ -9,7 +9,7 @@ const CourseHistoryTable = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(11);
   const [total, setTotal] = useState(0);
   const [searchParams, setSearchParams] = useState({ class_id: '', action_type: '' });
 
@@ -23,8 +23,12 @@ const CourseHistoryTable = () => {
         class_id,
         params.action_type,
       );
-      setData(res.data.data.data);
-      setTotal(res.total);
+      const formattedData = res.data.data.data.map(item => ({
+        ...item,
+        action_date: item.action_date.replace('T', ' '), 
+      }));
+      setData(formattedData);
+      setTotal(res.data.data.total_records);
       setPage(currentPage);
       setPageSize(currentPageSize);
     } catch (err) {
@@ -59,6 +63,12 @@ const CourseHistoryTable = () => {
         headerTitle="选课历史记录"
         search={false}
         columns={[
+          {
+            title: '课程计划',
+            dataIndex: 'class_plan_name',
+            key: 'class_plan_name',
+            search: false
+          },
           {
             title: '课程ID',
             dataIndex: 'class_id',
@@ -112,8 +122,8 @@ const CourseHistoryTable = () => {
             className="filter-select"
           >
             <Select.Option value="">全部</Select.Option>
-            <Select.Option value="1">选课</Select.Option>
-            <Select.Option value="2">退课</Select.Option>
+            <Select.Option value="Enroll">选课</Select.Option>
+            <Select.Option value="Drop">退课</Select.Option>
           </Select>,
           <Button key="search" onClick={handleSearch} type="default" icon={<SearchOutlined />}>搜索</Button>,
           <Button key="clear" onClick={handleClearSearch} type="default" icon={<CloseCircleOutlined />}>清空</Button>,
