@@ -1,27 +1,41 @@
 import React, { useState } from 'react';
-import { Calendar, Card, Badge, Layout, List, Typography, Empty } from 'antd';
+import { Calendar, Card, Badge, Layout, Timeline, Typography, Empty } from 'antd';
+import './table.scss';
 
 const { Sider, Content } = Layout;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const data = {
-  '2024-06-10': [{ time: '08:00 - 09:30', name: '数据结构' }, { time: '10:00 - 11:30', name: '操作系统' }],
-  '2024-06-11': [{ time: '13:30 - 15:00', name: '数据库系统' }, { time: '15:30 - 17:00', name: '软件工程' }],
-  '2024-06-12': [{ time: '08:00 - 09:30', name: '人工智能' }, { time: '10:00 - 11:30', name: '计算机网络' }],
-  '2024-06-13': [{ time: '13:30 - 15:00', name: '大数据分析' }],
-  '2024-06-14': [{ time: '15:30 - 17:00', name: '区块链技术' }],
+  '2024-06-10': [
+    { time: '08:00 - 09:30', name: '数据结构', location: '教学楼A201' },
+    { time: '10:00 - 11:30', name: '操作系统', location: '实验楼B302' },
+  ],
+  '2024-06-11': [
+    { time: '13:30 - 15:00', name: '数据库系统', location: '图书馆C101' },
+    { time: '15:30 - 17:00', name: '软件工程', location: '教学楼A303' },
+  ],
+  '2024-06-12': [
+    { time: '08:00 - 09:30', name: '人工智能', location: '实验楼B201' },
+    { time: '10:00 - 11:30', name: '计算机网络', location: '教学楼A102' },
+  ],
+  '2024-06-13': [
+    { time: '13:30 - 15:00', name: '大数据分析', location: '实验楼B101' },
+  ],
+  '2024-06-14': [
+    { time: '15:30 - 17:00', name: '区块链技术', location: '图书馆C202' },
+  ],
 };
 
 const CourseSchedule = () => {
-  const [selectedDate, setSelectedDate] = useState('2024-06-10'); // 默认选中日期
+  const [selectedDate, setSelectedDate] = useState('2024-06-10');
 
   const dateCellRender = (value) => {
     const dateKey = value.format('YYYY-MM-DD');
     const courses = data[dateKey] || [];
     return (
-      <ul style={{ padding: 0, margin: 0 }}>
+      <ul className="badge-list">
         {courses.map((item, index) => (
-          <li key={index} style={{ listStyle: 'none', marginBottom: 4 }}>
+          <li key={index}>
             <Badge color="blue" text={item.name} />
           </li>
         ))}
@@ -29,39 +43,36 @@ const CourseSchedule = () => {
     );
   };
 
-  // 选择日期
   const handleDateSelect = (value) => {
     const dateKey = value.format('YYYY-MM-DD');
     setSelectedDate(dateKey);
   };
 
   return (
-    <Layout style={{ height: '91vh' }}>
-      {/* 左侧：日历 */}
-      <Sider width={500} style={{ background: '#fff', padding: '20px' }}>
-        <Card title="课程日历" bordered={false}>
-          <Calendar 
-            dateCellRender={dateCellRender} // 渲染单元格内容
-            onSelect={handleDateSelect} // 点击日期触发
-          />
-        </Card>
+    <Layout className="layout">
+      <Sider className="sider" width={900}>
+        <Calendar
+          dateCellRender={dateCellRender}
+          onSelect={handleDateSelect}
+          className="calendar"
+        />
       </Sider>
 
-      {/* 右侧：课程安排 */}
-      <Content style={{ padding: '20px', background: '#f0f2f5' }}>
-        <Card title={`课程安排 - ${selectedDate}`} bordered={false}>
+      <Content className="content">
+        <Card title={`课程安排 - ${selectedDate}`} bordered={false} className="course-card">
           {data[selectedDate]?.length > 0 ? (
-            <List
-              dataSource={data[selectedDate]}
-              renderItem={(item) => (
-                <List.Item>
-                  <List.Item.Meta
-                    title={<Title level={5}>{item.time}</Title>}
-                    description={<span>{item.name}</span>}
-                  />
-                </List.Item>
-              )}
-            />
+            <Timeline>
+              {data[selectedDate].map((item, index) => (
+                <Timeline.Item key={index} className="timeline-item">
+                  <Title level={5}>{item.time}</Title>
+                  <Text>{item.name}</Text>
+                  <br />
+                  <Text type="secondary" className="location">
+                    地点: {item.location}
+                  </Text>
+                </Timeline.Item>
+              ))}
+            </Timeline>
           ) : (
             <Empty description="这一天没有课程安排" />
           )}
