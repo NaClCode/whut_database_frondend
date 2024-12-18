@@ -1,48 +1,89 @@
-import React, { useState } from 'react';
-import { Calendar, Card, Badge, Layout, Timeline, Typography, Empty } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Calendar, Card, Badge, Layout, Timeline, Typography, Empty, message, Spin } from 'antd';
+import { service } from '@/service';
+import moment from 'moment';
 import './table.scss';
 
 const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
 
-const data = {
-  '2024-06-10': [
-    { time: '08:00 - 09:30', name: '数据结构', location: '教学楼A201' },
-    { time: '10:00 - 11:30', name: '操作系统', location: '实验楼B302' },
-  ],
-  '2024-06-11': [
-    { time: '13:30 - 15:00', name: '数据库系统', location: '图书馆C101' },
-    { time: '15:30 - 17:00', name: '软件工程', location: '教学楼A303' },
-  ],
-  '2024-06-12': [
-    { time: '08:00 - 09:30', name: '人工智能', location: '实验楼B201' },
-    { time: '10:00 - 11:30', name: '计算机网络', location: '教学楼A102' },
-  ],
-  '2024-06-13': [
-    { time: '13:30 - 15:00', name: '大数据分析', location: '实验楼B101' },
-  ],
-  '2024-06-14': [
-    { time: '15:30 - 17:00', name: '区块链技术', location: '图书馆C202' },
-  ],
-};
-
 const CourseSchedule = () => {
   const [selectedDate, setSelectedDate] = useState('2024-06-10');
   const [currentMonth, setCurrentMonth] = useState('');
+  const [courseData, setCourseData] = useState({});
+  const [monthCourseDate, setMonthCourseDate] = useState({});
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
+  const fetchCourseData = async (date) => {
+    setLoading(true);
+    try {
+      const response = await service.course.dayTable(date);
+      setCourseData((prevData) => ({
+        ...prevData,
+        [date]: response.data.data,
+      }));
+      setError(null);
+    } catch (error) {
+      const errorMessage = error.message || '获取课程数据失败，请稍后重试';
+      setError(errorMessage);
+      message.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchMonthCourseData = async (month) => {
+    setLoading(true);
+    try {
+      setMonthCourseDate({});
+      const response = await service.course.table(month);  
+      const newMonthCourse = {};
+      response.data.data.forEach(item => {
+        const dateKey = moment(item.date).format('YYYY-MM-DD');
+        
+        if (newMonthCourse[dateKey]) {
+          newMonthCourse[dateKey].push(item.name);
+        } else {
+          newMonthCourse[dateKey] = [item.name];
+        }
+      });
+      
+      setMonthCourseDate(newMonthCourse);
+    } catch (error) {
+      const errorMessage = error.message || '获取月份课程数据失败，请稍后重试';
+      setError(errorMessage);
+      message.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const dateCellRender = (value) => {
     const dateKey = value.format('YYYY-MM-DD');
-    const courses = data[dateKey] || [];
+    const courses = monthCourseDate[dateKey] || [];
+    
     return (
       <ul className="badge-list">
         {courses.map((item, index) => (
           <li key={index}>
-            <Badge color="blue" text={item.name} />
+            <Badge color="blue" text={item} />
           </li>
         ))}
       </ul>
     );
   };
+
+  useEffect(() => {
+    fetchCourseData(selectedDate);
+  }, [selectedDate]);
+
+  useEffect(() => {
+    if (currentMonth) {
+      fetchMonthCourseData(currentMonth);
+    }
+  }, [currentMonth]);
+
 
   const handleDateSelect = (value) => {
     const dateKey = value.format('YYYY-MM-DD');
@@ -52,7 +93,6 @@ const CourseSchedule = () => {
   const handlePanelChange = (value, mode) => {
     const month = value.format('YYYY-MM');
     setCurrentMonth(month);
-    console.log('当前显示的月份:', month);
   };
 
   return (
@@ -68,21 +108,29 @@ const CourseSchedule = () => {
 
       <Content className="content">
         <Card title={`课程安排 - ${selectedDate}`} bordered={false} className="course-card">
-          {data[selectedDate]?.length > 0 ? (
-            <Timeline>
-              {data[selectedDate].map((item, index) => (
-                <Timeline.Item key={index} className="timeline-item">
-                  <Title level={5}>{item.time}</Title>
-                  <Text>{item.name}</Text>
-                  <br />
-                  <Text type="secondary" className="location">
-                    地点: {item.location}
-                  </Text>
-                </Timeline.Item>
-              ))}
-            </Timeline>
+          {loading ? (
+            <Spin size="large" tip="加载中..." className="loading-spinner" /> 
+          ) : error ? (
+            <Empty description={error} />
           ) : (
-            <Empty description="这一天没有课程安排" />
+            courseData[selectedDate]?.length > 0 ? (
+              <Timeline>
+                {courseData[selectedDate].map((item, index) => (
+                  <Timeline.Item key={index} className="timeline-item">
+                    <Title level={5}>{item.name}</Title>
+                    <Text>
+                      {moment(item.start_time).format('HH:mm:ss')}-{moment(item.end_time).format('HH:mm:ss')}
+                    </Text>
+                    <br />
+                    <Text type="secondary" className="location">
+                      地点: {item.classroom}
+                    </Text>
+                  </Timeline.Item>
+                ))}
+              </Timeline>
+            ) : (
+              <Empty description="这一天没有课程安排" />
+            )
           )}
         </Card>
       </Content>

@@ -268,7 +268,37 @@ const course = {
       }
     })
   },
-
+  table: (time) => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/table',
+      params: {
+        time
+      }
+    })
+  },
+  dayTable: (time) => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/dayTable',
+      params: {
+        time
+      }
+    })
+  },
+  grade: (page, pagesize) => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/grade',
+      params: {
+        page,
+        pagesize
+      }
+    })
+  }
 }
 
 export const service = {user, root, 
