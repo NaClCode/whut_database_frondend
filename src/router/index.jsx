@@ -19,11 +19,12 @@ const Router = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/feedback" element={<Feedback />} />
       {userType === 'student' && <Route path="/course" element={<Course />} />}
-      {/* <Route path='/admin' element={<Admin/>} /> */}
       {userType !== 'student' && <Route path="/course" element={<Navigate to="/" replace />} />}
       <Route path="/user" element={<User />} />
       {userType === 'teacher' && <Route path="/teacher" element={<Teacher />} />}
       {userType !== 'teacher' && <Route path="/teacher" element={<Navigate to="/" replace />} />}
+      {userType === 'admin' && <Route path="/admin" element={<Admin />} />}
+      {userType !== 'admin' && <Route path="/admin" element={<Navigate to="/" replace />} />}
     </Routes>
   );
 };

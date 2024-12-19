@@ -166,8 +166,8 @@ const Register = () => {
             status={confirmStatus}
             onKeyDown={(e) => { if (e.key === 'Enter') handleRegister(); }}
           />
-          <Button type='primary' className='botton' onClick={handleRegister}>注册</Button>
-          <Button className='botton' onClick={() => navigate("/login")}>登录</Button>
+          <Button type='primary' className='login-botton' onClick={handleRegister}>注册</Button>
+          <Button className='register-botton' onClick={() => navigate("/login")}>登录</Button>
         </div>
       </div>
     </div>

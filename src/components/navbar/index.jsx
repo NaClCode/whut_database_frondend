@@ -34,14 +34,11 @@ const Navbar = () => {
         <Space size="small" direction="vertical">
           <div className="item">{`${localStorage.getItem('username')} #${localStorage.getItem('userID')}`}</div>
           <div className="divide"></div>
-          <Button type="link" className="item clickable" onClick={() => navigate('/user')}>
-            <UserOutlined />&nbsp;个人信息
-          </Button>
-          {localStorage.getItem('admin') === '1' ? (
-            <div className="item clickable" onClick={() => navigate('/admin/user')}>
-              <ControlOutlined />&nbsp;管理面板
-            </div>
-          ) : null}
+          {localStorage.getItem('username') !== 'admin' && (
+            <Button type="link" className="item clickable" onClick={() => navigate('/user')}>
+              <UserOutlined />&nbsp;个人信息
+            </Button>
+          )}
           <Button type="link" className="item clickable" onClick={onLogout}>
             <LogoutOutlined />&nbsp;退出登录
           </Button>
@@ -85,9 +82,11 @@ const Navbar = () => {
               教师
             </Link>
           )}
-            {/* <Link style={colorExtraStyle} className="link" to="/admin">
+          {userType === 'admin' && (
+            <Link style={colorExtraStyle} className="link" to="/admin">
               管理
-            </Link> */}
+            </Link>
+          )}
           <Link style={colorExtraStyle} className="link small-hide" to="/feedback">
             反馈
           </Link>

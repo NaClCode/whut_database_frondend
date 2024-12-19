@@ -31,40 +31,41 @@ const Login = () => {
   };
 
   const handleLogin = () => {
-
-      service.user.auth(email, password, userType).then(res => {
-        const { token, username, email, userID, usertype } = res.data;
-        if (token === null) {
-          notificationApi.warning({
-            message: "账号未激活",
-            description: "请先点击邮箱内激活链接后再登录，可点击下方按钮重新发送激活邮件。",
-            btn: <Button type="primary" onClick={handleResend}>重发邮件</Button>,
-          });
-          return;
-        }
-        localStorage.setItem('token', token);
-        localStorage.setItem('username', username);
-        localStorage.setItem('email', email);
-        localStorage.setItem('userID', userID);
-        localStorage.setItem("userType", usertype);
-        window.location.href = '/';
-      }).catch(err => {
-        if (err.response?.status === 401) {
-          notificationApi.error({
-            message: '登录失败',
-            description: '用户名或密码错误',
-          });
-          setUsernameStatus('error');
-          setPasswordStatus('error');
-          return;
-        }
-        notificationApi.error({
-          message: '登录失败',
-          description: `${er}`,
+    service.user.auth(email, password, userType).then(res => {
+      const { token, username, email, userID, usertype } = res.data;
+      if (token === null) {
+        notificationApi.warning({
+          message: "账号未激活",
+          description: "请先点击邮箱内激活链接后再登录，可点击下方按钮重新发送激活邮件。",
+          btn: <Button type="primary" onClick={handleResend}>重发邮件</Button>,
         });
+        return;
+      }
+      localStorage.setItem("token", token);
+      localStorage.setItem("username", username);
+      localStorage.setItem("userID", userID);
+      localStorage.setItem("userType", usertype);
+      if (userType !== "admin") {
+        localStorage.setItem("email", email);
+      }
+      window.location.href = "/";
+    }).catch(err => {
+      if (err.response?.status === 401) {
+        notificationApi.error({
+          message: "登录失败",
+          description: "用户名或密码错误",
+        });
+        setUsernameStatus("error");
+        setPasswordStatus("error");
+        return;
+      }
+      notificationApi.error({
+        message: "登录失败",
+        description: `${err}`,
       });
-
+    });
   };
+  
 
   const resetStatus = () => {
     setUsernameStatus('');
@@ -90,17 +91,25 @@ const Login = () => {
               >
                 <Option value="teacher">教师登录</Option>
                 <Option value="student">学生登录</Option>
+                <Option value="admin">管理员登录</Option>
               </Select>
 
               <Input
-                size='large'
-                prefix={<div className='input-label'>邮箱</div>}
-                className='input-field'
+                size="large"
+                prefix={<div className="input-label">{userType === "admin" ? "用户名" : "邮箱"}</div>}
+                className="input-field"
                 value={email}
-                onChange={(e) => { setEmail(e.target.value); resetStatus(); }}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  resetStatus();
+                }}
                 status={usernameStatus}
-                onKeyDown={(e) => { if (e.key === 'Enter') window.document.getElementById('password').focus(); }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") window.document.getElementById("password").focus();
+                }}
+                type={userType === "admin" ? "text" : "email"}
               />
+
               <Input.Password
                 id='password'
                 size='large'
@@ -113,8 +122,8 @@ const Login = () => {
                 onKeyDown={(e) => { if (e.key === 'Enter') handleLogin(); }}
               />
           
-          <Button type='primary' className='botton' onClick={handleLogin}>登录</Button>
-          <Button className='botton' onClick={() => navigate("/register")}>注册</Button>
+          <Button type='primary' className='login-botton' onClick={handleLogin}>登录</Button>
+          <Button className='register-botton' onClick={() => navigate("/register")}>注册</Button>
         </div>
       </div>
     </div>

@@ -39,9 +39,16 @@
         }
       }
   
-      .botton {
+      .login-botton {
         float: right;
-        margin: 20px 0 16px 8px;
+        height: 35px;
+        margin: 8px 0 0px 8px;
+      }
+
+      .register-botton {
+        float: right;
+        height: 35px;
+        margin: 10px 0 20px 8px;
       }
   
       .title {
