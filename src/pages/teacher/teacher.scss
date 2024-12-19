@@ -1,0 +1,21 @@
+.ant-layout-sider-trigger {
+    background-color: #fff !important;
+    color: #000 !important; 
+    border-top: 1px solid #f0f0f0; 
+  }
+  
+.teacher-layout {
+    min-height: 91vh;
+
+    .protable {
+        height: 84vh;
+    }
+
+    .teacher-sider {
+        background-color: #fff;
+      }
+      
+    .teacher-content {
+        margin: 16px;
+    }
+}

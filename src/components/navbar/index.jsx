@@ -80,14 +80,14 @@ const Navbar = () => {
               课程
             </Link>
           )}
-          {/* {userType === 'admin' && (
-            <Link style={colorExtraStyle} className="link" to="/admin">
-              课程
+          {userType === 'teacher' && (
+            <Link style={colorExtraStyle} className="link" to="/teacher">
+              教师
             </Link>
-          )} */}
-            <Link style={colorExtraStyle} className="link" to="/admin">
+          )}
+            {/* <Link style={colorExtraStyle} className="link" to="/admin">
               管理
-            </Link>
+            </Link> */}
           <Link style={colorExtraStyle} className="link small-hide" to="/feedback">
             反馈
           </Link>
