@@ -140,22 +140,11 @@ const courseplan = {
       }
     })
   },
-  list: (page, pagesize) => {
+  list: (page, pagesize, name, college, profession, credit, is_selected, type) => {
     return axios({
       baseURL,
       method: 'get',
       url: '/course/plan/list',
-      params: {
-        page,
-        pagesize
-      }
-    })
-  },
-  search: (page, pagesize, name, college, profession, credit, is_selected, type) => {
-    return axios({
-      baseURL,
-      method: 'get',
-      url: '/course/plan/search',
       params: {
         name, 
         college, 
@@ -195,31 +184,7 @@ const courseclasser = {
   },
 }
 
-const courseschedule = {
-  detail: (id) => {
-    return axios({
-      baseURL,
-      method: 'get',
-      url: '/course/schedule/detail',
-      params: {
-        id
-      }
-    })
-  },
-  list: (id, page, pagesize) => {
-    return axios({
-      baseURL,
-      method: 'get',
-      url: '/course/schedule/list',
-      params: {
-        id,
-        page,
-        pagesize
-      }
-    })
-  },
 
-}
 
 const course = {
   enroll: (classid) => {
@@ -304,4 +269,4 @@ const course = {
 export const service = {user, root, 
                         student, teacher,
                         courseplan, courseclasser,
-                        courseschedule, course}
+                       course}

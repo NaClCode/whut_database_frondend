@@ -123,7 +123,11 @@ const CourseSchedule = () => {
                     </Text>
                     <br />
                     <Text type="secondary" className="location">
-                      地点: {item.classroom}
+                      教室: {item.classroom.name}
+                    </Text>
+                    <br />
+                    <Text type="secondary" className="location">
+                      地点: {item.classroom.location}
                     </Text>
                   </Timeline.Item>
                 ))}

@@ -3,30 +3,39 @@ import { Card, Col, Row, Typography, Tag, Divider, Space, Button, message, Table
 import { LeftOutlined } from '@ant-design/icons';
 import { service } from '@/service';
 import './classer.scss';
+import moment from 'moment';
 
 const { Text } = Typography;
 
 const columns = [
-  {
-    title: '开始时间',
-    dataIndex: 'start_time',
-    key: 'start_time',
-  },
-  {
-    title: '结束时间',
-    dataIndex: 'end_time',
-    key: 'end_time',
-  },
-  {
-    title: '教室',
-    dataIndex: 'classroom',
-    key: 'classroom',
-  },
-  {
-    title: '类型',
-    dataIndex: 'classtype',
-    key: 'classtype',
-  },
+    {
+      title: '开始时间',
+      dataIndex: 'start_time',
+      key: 'start_time',
+      render: (text) => moment(text).format('YYYY-MM-DD HH:mm'),
+    },
+    {
+      title: '结束时间',
+      dataIndex: 'end_time',
+      key: 'end_time',
+      render: (text) => moment(text).format('YYYY-MM-DD HH:mm'),
+    },
+    {
+      title: '教室',
+      dataIndex: 'classroom',
+      key: 'classroom',
+    },
+    {
+      title: '类型',
+      dataIndex: 'classtype',
+      key: 'classtype',
+      render: (text) => (text === 'C' ? '教室' : text === 'S' ? '实验室' : text),
+    },
+    {
+      title: '位置',
+      dataIndex: 'location',
+      key: 'location',
+    },
 ];
 
 const CourseContentClasser = ({ setMode, classplanid }) => {

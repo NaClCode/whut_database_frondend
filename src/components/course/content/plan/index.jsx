@@ -73,7 +73,7 @@ const CourseContentPlan = ({setMode, setPlanID, page, setPage}) => {
     try {
       const searchCredit = params.credit === "" ? -1 : params.credit;
       const searchIsSelected = params.is_selected === "" ?-1 : params.is_selected;
-      const res = await service.courseplan.search(
+      const res = await service.courseplan.list(
         currentPage, 
         currentPageSize, 
         params.name,
