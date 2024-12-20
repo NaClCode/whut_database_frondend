@@ -43,11 +43,10 @@ const CourseGrades = () => {
     teacher: '',
   });
 
-  // Fetch grades from the server
   const fetchGrades = async (currentPage = page, currentPageSize = pageSize, params = inputSearchParams) => {
     setLoading(true);
     try {
-      const res = await service.course.grade(
+      const res = await service.course.studentGrade(
         currentPage,
         currentPageSize,
         params.name,

@@ -7,7 +7,7 @@ import './table.scss';
 const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
 
-const CourseSchedule = () => {
+const TeacherTable = () => {
   const [selectedDate, setSelectedDate] = useState('2024-06-10');
   const [currentMonth, setCurrentMonth] = useState('');
   const [courseData, setCourseData] = useState({});
@@ -18,7 +18,7 @@ const CourseSchedule = () => {
   const fetchCourseData = async (date) => {
     setLoading(true);
     try {
-      const response = await service.course.studentDayTable(date);
+      const response = await service.course.teacherDayTable(date);
       setCourseData((prevData) => ({
         ...prevData,
         [date]: response.data.data,
@@ -37,7 +37,7 @@ const CourseSchedule = () => {
     setLoading(true);
     try {
       setMonthCourseDate({});
-      const response = await service.course.studentTable(month);  
+      const response = await service.course.teacherTable(month);  
       const newMonthCourse = {};
       response.data.data.forEach(item => {
         const dateKey = moment(item.date).format('YYYY-MM-DD');
@@ -142,4 +142,4 @@ const CourseSchedule = () => {
   );
 };
 
-export default CourseSchedule;
+export default TeacherTable;

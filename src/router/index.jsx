@@ -7,7 +7,7 @@ import Feedback from '@/pages/feedback';
 import Course from '@/pages/course';
 import User from '@/pages/user';
 import Admin from '@/pages/admin';
-import Teacher from '../pages/teacher';
+import Teacher from '@/pages/teacher';
 
 const Router = () => {
   const userType = localStorage.getItem('userType'); 

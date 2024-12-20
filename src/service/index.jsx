@@ -233,31 +233,31 @@ const course = {
       }
     })
   },
-  table: (time) => {
+  studentTable: (time) => {
     return axios({
       baseURL,
       method: 'get',
-      url: '/course/table',
+      url: '/course/table/student/table',
       params: {
         time
       }
     })
   },
-  dayTable: (time) => {
+  studentDayTable: (time) => {
     return axios({
       baseURL,
       method: 'get',
-      url: '/course/dayTable',
+      url: '/course/table/student/dayTable',
       params: {
         time
       }
     })
   },
-  grade: (page, pagesize) => {
+  studentGrade: (page, pagesize) => {
     return axios({
       baseURL,
       method: 'get',
-      url: '/course/grade',
+      url: '/course/grade/student',
       params: {
         page,
         pagesize

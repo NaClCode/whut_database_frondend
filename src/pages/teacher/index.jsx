@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Layout } from 'antd';
 import TeacherSider from '@/components/teacher/sider';
 import './teacher.scss';
+import TeacherGrades from '@/components/teacher/grade';
+import TeacherTable from '@/components/teacher/table';
 
 const { Content } = Layout;
 
@@ -13,7 +15,9 @@ const Teacher = () => {
       case '1':
         return <div>1</div>
       case '2':
-        return <div>2</div>
+        return <TeacherTable/>
+      case '3':
+        return <TeacherGrades/>
     }
   };
 

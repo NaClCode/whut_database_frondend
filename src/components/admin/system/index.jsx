@@ -1,235 +1,167 @@
+import { service } from '@/service'; // 引入服务接口
 import React, { useState, useEffect } from 'react';
-import { Layout, Switch, Row, Col, Typography, Card, message, DatePicker, Button, Divider, Spin } from 'antd';
-import { SettingOutlined } from '@ant-design/icons';
+import { Layout, Button, Typography, Card, Modal, DatePicker, message, Spin } from 'antd';
 import moment from 'moment';
 import './system.scss';
 
 const { Title } = Typography;
 const { Content } = Layout;
 
+// 时间卡片组件
+const TimeCard = ({ title, startTime, endTime, onSetTime }) => {
+  return (
+    <Card bordered={true} style={{ flex: 1, margin: '0 8px' }}>
+      <Title level={5}>{title}</Title>
+      <div style={{ marginBottom: 16 }}>
+        <p>开始时间：{startTime ? moment(startTime).format('YYYY-MM-DD HH:mm') : '未设置'}</p>
+        <p>结束时间：{endTime ? moment(endTime).format('YYYY-MM-DD HH:mm') : '未设置'}</p>
+      </div>
+      <Button type="primary" onClick={onSetTime}>
+        设置
+      </Button>
+    </Card>
+  );
+};
+
 const AdminSystem = () => {
-  const [isCourseSelectionOpen, setIsCourseSelectionOpen] = useState(false);
-  const [isSchedulingOpen, setIsSchedulingOpen] = useState(false);
-  const [courseStartTime, setCourseStartTime] = useState(null);
-  const [courseEndTime, setCourseEndTime] = useState(null);
-  const [schedulingStartTime, setSchedulingStartTime] = useState(null);
-  const [schedulingEndTime, setSchedulingEndTime] = useState(null);
-  const [isCourseTimeValid, setIsCourseTimeValid] = useState(true);
-  const [isSchedulingTimeValid, setIsSchedulingTimeValid] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [currentTitle, setCurrentTitle] = useState('');
+  const [currentStartTime, setCurrentStartTime] = useState(null);
+  const [currentEndTime, setCurrentEndTime] = useState(null);
+  const [times, setTimes] = useState({
+    course: { startTime: null, endTime: null },
+    schedule: { startTime: null, endTime: null },
+    grade: { startTime: null, endTime: null },
+  });
+
+  // 延迟检测的状态
   const [backendDelay, setBackendDelay] = useState(null);
-  const [backendLogs, setBackendLogs] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleCourseSelectionChange = (checked) => {
-    if (!courseStartTime || !courseEndTime) {
-      message.error('请先设置选课开始和结束时间');
-      return;
-    }
-
-    const currentTime = moment();
-    const start = moment(courseStartTime);
-    const end = moment(courseEndTime);
-
-    if (currentTime.isBetween(start, end, null, '[)')) {
-      setIsCourseSelectionOpen(checked);
-      message.success(`选课系统已${checked ? '开启' : '关闭'}`);
-    } else {
-      setIsCourseSelectionOpen(false);
-      message.error('当前时间不在选课时间范围内');
-    }
-  };
-
-  const handleSchedulingChange = (checked) => {
-    if (!schedulingStartTime || !schedulingEndTime) {
-      message.error('请先设置排课开始和结束时间');
-      return;
-    }
-
-    const currentTime = moment();
-    const start = moment(schedulingStartTime);
-    const end = moment(schedulingEndTime);
-
-    if (currentTime.isBetween(start, end, null, '[)')) {
-      setIsSchedulingOpen(checked);
-      message.success(`排课系统已${checked ? '开启' : '关闭'}`);
-    } else {
-      setIsSchedulingOpen(false);
-      message.error('当前时间不在排课时间范围内');
-    }
-  };
-
-  const handleCourseStartTimeChange = (time) => setCourseStartTime(time);
-  const handleCourseEndTimeChange = (time) => setCourseEndTime(time);
-  const handleSchedulingStartTimeChange = (time) => setSchedulingStartTime(time);
-  const handleSchedulingEndTimeChange = (time) => setSchedulingEndTime(time);
-
-  const validateCourseTime = () => {
-    if (!courseStartTime || !courseEndTime) {
-      message.error('请设置完整的选课开始时间和结束时间');
-      setIsCourseTimeValid(false);
-      return;
-    }
-
-    const start = moment(courseStartTime);
-    const end = moment(courseEndTime);
-    if (start.isBefore(end)) {
-      setIsCourseTimeValid(true);
-      message.success('选课时间设置有效');
-    } else {
-      setIsCourseTimeValid(false);
-      message.error('选课结束时间必须晚于开始时间');
-    }
-  };
-
-  const validateSchedulingTime = () => {
-    if (!schedulingStartTime || !schedulingEndTime) {
-      message.error('请设置完整的排课开始时间和结束时间');
-      setIsSchedulingTimeValid(false);
-      return;
-    }
-
-    const start = moment(schedulingStartTime);
-    const end = moment(schedulingEndTime);
-    if (start.isBefore(end)) {
-      setIsSchedulingTimeValid(true);
-      message.success('排课时间设置有效');
-    } else {
-      setIsSchedulingTimeValid(false);
-      message.error('排课结束时间必须晚于开始时间');
-    }
-  };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
+  // 从后端获取系统延迟
+  const fetchBackendDelay = async () => {
+    try {
       setIsLoading(true);
+      const startTime = Date.now(); // 记录请求开始时间
+      const response = await service.root(); // 调用后端 API 获取延迟数据
+      const endTime = Date.now(); // 记录请求结束时间
+  
+      const apiDelay = response?.data?.delay || 0; // 假设后端返回的延迟值在 `data.delay` 中
+      const calculatedDelay = endTime - startTime; // 计算前后端通信的延迟时间
+  
+      setBackendDelay(apiDelay + calculatedDelay); // 将两者加起来作为最终延迟（可根据实际需求调整）
+    } catch (error) {
+      console.error('获取延迟数据失败:', error);
+      message.error('获取延迟数据失败，请稍后重试！');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      setTimeout(() => {
-        const delay = Math.floor(Math.random() * 1000) + 500;
-        setBackendDelay(delay);
-
-        const newLog = `日志: 后端响应延迟：${delay}ms`;
-        setBackendLogs((prevLogs) => [newLog, ...prevLogs]);
-
-        setIsLoading(false);
-      }, 500);
+  // 使用 useEffect 周期性获取延迟数据
+  useEffect(() => {
+    fetchBackendDelay(); // 页面加载时先请求一次
+    const interval = setInterval(() => {
+      fetchBackendDelay(); // 每隔 5 秒请求一次延迟数据
     }, 5000);
-
-    return () => clearInterval(interval);
+    return () => clearInterval(interval); // 清除定时器
   }, []);
 
-  useEffect(() => {
-    validateCourseTime();
-    validateSchedulingTime();
-  }, [courseStartTime, courseEndTime, schedulingStartTime, schedulingEndTime]);
+  // 设置时间的逻辑
+  const handleSetTime = (key) => {
+    setCurrentTitle(key);
+    setCurrentStartTime(times[key].startTime);
+    setCurrentEndTime(times[key].endTime);
+    setModalVisible(true);
+  };
+
+  const handleSaveTime = () => {
+    if (!currentStartTime || !currentEndTime) {
+      message.error('请设置开始时间和结束时间');
+      return;
+    }
+    if (moment(currentStartTime).isAfter(moment(currentEndTime))) {
+      message.error('开始时间不能晚于结束时间');
+      return;
+    }
+    setTimes((prev) => ({
+      ...prev,
+      [currentTitle]: { startTime: currentStartTime, endTime: currentEndTime },
+    }));
+    setModalVisible(false);
+    message.success('时间设置成功！');
+  };
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Content style={{ padding: '40px' }}>
-        <Row justify="space-between">
-          <Col span={11}>
-            <Card title={<Title level={3}><SettingOutlined /> 系统管理</Title>} bordered={false}>
-              <Row gutter={24}>
-                <Col span={12}>
-                  <Card title="选课系统" bordered={true}>
-                    <div>
-                      <Title level={5}>设置选课时间</Title>
-                      <DatePicker
-                        showTime
-                        format="YYYY-MM-DD HH:mm"
-                        placeholder="选择开始时间"
-                        value={courseStartTime ? moment(courseStartTime) : null}
-                        onChange={handleCourseStartTimeChange}
-                        style={{ width: '100%' }}
-                      />
-                    </div>
-                    <div style={{ marginTop: 16 }}>
-                      <DatePicker
-                        showTime
-                        format="YYYY-MM-DD HH:mm"
-                        placeholder="选择结束时间"
-                        value={courseEndTime ? moment(courseEndTime) : null}
-                        onChange={handleCourseEndTimeChange}
-                        style={{ width: '100%' }}
-                      />
-                    </div>
-                    <div style={{ marginTop: 16 }}>
-                      <Button type="primary" onClick={validateCourseTime} style={{ width: '100%' }}>
-                        校验选课时间
-                      </Button>
-                    </div>
-                    <div style={{ marginTop: 16 }}>
-                      <Switch
-                        checked={isCourseSelectionOpen}
-                        onChange={handleCourseSelectionChange}
-                        checkedChildren="开启"
-                        unCheckedChildren="关闭"
-                        disabled={!isCourseTimeValid}
-                        style={{ width: '100%' }}
-                      />
-                    </div>
-                  </Card>
-                </Col>
+        {/* 左中右三个卡片 */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
+          <TimeCard
+            title="选课时间"
+            startTime={times.course.startTime}
+            endTime={times.course.endTime}
+            onSetTime={() => handleSetTime('course')}
+          />
+          <TimeCard
+            title="排课时间"
+            startTime={times.schedule.startTime}
+            endTime={times.schedule.endTime}
+            onSetTime={() => handleSetTime('schedule')}
+          />
+          <TimeCard
+            title="成绩时间"
+            startTime={times.grade.startTime}
+            endTime={times.grade.endTime}
+            onSetTime={() => handleSetTime('grade')}
+          />
+        </div>
 
-                <Col span={12}>
-                  <Card title="排课系统" bordered={true}>
-                    <div>
-                      <Title level={5}>设置排课时间</Title>
-                      <DatePicker
-                        showTime
-                        format="YYYY-MM-DD HH:mm"
-                        placeholder="选择开始时间"
-                        value={schedulingStartTime ? moment(schedulingStartTime) : null}
-                        onChange={handleSchedulingStartTimeChange}
-                        style={{ width: '100%' }}
-                      />
-                    </div>
-                    <div style={{ marginTop: 16 }}>
-                      <DatePicker
-                        showTime
-                        format="YYYY-MM-DD HH:mm"
-                        placeholder="选择结束时间"
-                        value={schedulingEndTime ? moment(schedulingEndTime) : null}
-                        onChange={handleSchedulingEndTimeChange}
-                        style={{ width: '100%' }}
-                      />
-                    </div>
-                    <div style={{ marginTop: 16 }}>
-                      <Button type="primary" onClick={validateSchedulingTime} style={{ width: '100%' }}>
-                        校验排课时间
-                      </Button>
-                    </div>
-                    <div style={{ marginTop: 16 }}>
-                      <Switch
-                        checked={isSchedulingOpen}
-                        onChange={handleSchedulingChange}
-                        checkedChildren="开启"
-                        unCheckedChildren="关闭"
-                        disabled={!isSchedulingTimeValid}
-                        style={{ width: '100%' }}
-                      />
-                    </div>
-                  </Card>
-                </Col>
-              </Row>
-            </Card>
-          </Col>
+        {/* 系统延迟检测 */}
+        <Card title={<Title level={5}>系统延迟检测</Title>} bordered={true} style={{ marginBottom: 24 }}>
+          <div style={{ textAlign: 'center' }}>
+            <Title level={5}>当前系统延迟</Title>
+            {isLoading ? (
+              <Spin size="large" />
+            ) : (
+              <p
+                style={{
+                  fontSize: '18px',
+                  color: backendDelay <= 1000 ? 'green' : 'red', // 根据延迟值设置颜色
+                  fontWeight: 'bold',
+                }}
+              >
+                {backendDelay} ms
+              </p>
+            )}
+          </div>
+        </Card>
 
-          <Col span={11}>
-            <Card title="后端延迟检测" bordered={true}>
-              <div style={{ marginBottom: 16 }}>
-                <Title level={5}>后端响应延迟</Title>
-                {isLoading ? <Spin size="large" /> : <p>当前延迟：{backendDelay}ms</p>}
-              </div>
-
-              <Divider />
-
-              <Title level={5}>后端日志</Title>
-              <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                {backendLogs.map((log, index) => <p key={index}>{log}</p>)}
-              </div>
-            </Card>
-          </Col>
-        </Row>
+        <Modal
+          title={`设置${currentTitle === 'course' ? '选课' : currentTitle === 'schedule' ? '排课' : '成绩'}时间`}
+          visible={modalVisible}
+          onCancel={() => setModalVisible(false)}
+          onOk={handleSaveTime}
+        >
+          <div style={{ marginBottom: 16 }}>
+            <DatePicker
+              showTime
+              format="YYYY-MM-DD HH:mm"
+              placeholder="选择开始时间"
+              value={currentStartTime ? moment(currentStartTime) : null}
+              onChange={(value) => setCurrentStartTime(value)}
+              style={{ width: '100%', marginBottom: 16 }}
+            />
+            <DatePicker
+              showTime
+              format="YYYY-MM-DD HH:mm"
+              placeholder="选择结束时间"
+              value={currentEndTime ? moment(currentEndTime) : null}
+              onChange={(value) => setCurrentEndTime(value)}
+              style={{ width: '100%' }}
+            />
+          </div>
+        </Modal>
       </Content>
     </Layout>
   );

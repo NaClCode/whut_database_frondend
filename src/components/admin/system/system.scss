@@ -1,35 +1,75 @@
-.ant-card {
-    border-radius: 8px;
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #f0f2f5; // 背景颜色
+}
+
+// Layout 内容样式
+.layout-content {
+  padding: 40px;
+  background-color: #ffffff; // 白色背景
+  min-height: 100vh; // 最小高度
+}
+
+// 卡片容器样式
+.card-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+// 单个卡片样式
+.card-item {
+  flex: 1;
+  margin: 0 8px;
+
+  .ant-card {
+    border: 1px solid #d9d9d9; // 边框颜色
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); // 阴影效果
   }
-  
-  .ant-card-body {
-    padding: 24px;
+
+  .ant-typography {
+    font-size: 16px; // 标题字体大小
+    font-weight: 600; // 标题加粗
   }
-  
-  .ant-switch {
-    width: 100%;
+
+  .ant-btn-primary {
+    width: 100%; // 按钮宽度
+    margin-top: 16px; // 按钮顶部间距
   }
-  
-  .ant-card-title {
-    display: flex;
-    align-items: center;
+}
+
+// 系统延迟检测卡片样式
+.delay-card {
+  margin-bottom: 24px;
+
+  .delay-title {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 16px;
+  }
+
+  .delay-value {
+    text-align: center;
     font-size: 18px;
+    font-weight: bold;
+
+    &.low {
+      color: green;
+    }
+
+    &.high {
+      color: red;
+    }
   }
-  
-  .ant-card-title .anticon {
-    margin-right: 8px;
+}
+
+// 模态框样式
+.modal {
+  .ant-picker {
+    width: 100%; // 日期选择器宽度
+    margin-bottom: 16px; // 日期选择器底部间距
   }
-  
-  .ant-btn {
-    width: 100%;
-  }
-  
-  .ant-divider {
-    margin: 16px 0;
-  }
-  
-  .ant-spin {
-    display: block;
-    margin: 0 auto;
-  }
-  
+}

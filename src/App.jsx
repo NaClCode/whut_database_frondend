@@ -2,7 +2,6 @@ import React from 'react';
 import Layout, { Content, Header } from 'antd/es/layout/layout';
 import Navbar from './components/navbar';
 import { useLocation } from 'react-router-dom';
-import Sider from 'antd/es/layout/Sider';
 import Router from './router';
 import { checkToken } from './utils/checkToken';
 import Draggable from 'react-draggable'
