@@ -286,7 +286,64 @@ const course = {
   }
 }
 
+const admin = {
+  gradeTimeGet: () => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/admin/time/grade'
+    })
+  },
+  gradeTimePut: (start_time, end_time) => {
+    return axios({
+      baseURL,
+      method: 'put',
+      url: '/admin/time/grade',
+      data: {
+        start_time,
+        end_time
+      }
+    })
+  },
+  scheduleTimeGet: () => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/admin/time/schedule'
+    })
+  },
+  scheduleTimePut: (start_time, end_time) => {
+    return axios({
+      baseURL,
+      method: 'put',
+      url: '/admin/time/schedule',
+      data: {
+        start_time,
+        end_time
+      }
+    })
+  },
+  selectTimeGet: () => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/admin/time/select'
+    })
+  },
+  selectTimePut: (start_time, end_time) => {
+    return axios({
+      baseURL,
+      method: 'put',
+      url: '/admin/time/select',
+      data: {
+        start_time,
+        end_time
+      }
+    })
+  }
+}
+
 export const service = {user, root, 
                         student, teacher,
                         courseplan, courseclasser,
-                       course}
+                       course, admin}
