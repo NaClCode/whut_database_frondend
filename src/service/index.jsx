@@ -191,7 +191,7 @@ const course = {
     return axios({
       baseURL,
       method: 'post',
-      url: '/course/enroll',
+      url: '/course/select/enroll',
       data: {
         classid
       }
@@ -201,7 +201,7 @@ const course = {
     return axios({
       baseURL,
       method: 'delete',
-      url: '/course/drop',
+      url: '/course/select/drop',
       data: {
         classid
       }
@@ -211,7 +211,7 @@ const course = {
     return axios({
       baseURL,
       method: 'get',
-      url: '/course/list',
+      url: '/course/select/list',
       params: {
         page,
         pagesize,
@@ -224,7 +224,7 @@ const course = {
     return axios({
       baseURL,
       method: 'get',
-      url: '/course/history',
+      url: '/course/select/history',
       params: {
         page,
         pagesize,
