@@ -89,9 +89,9 @@ const Login = () => {
                 className='select-field'
                 size="large"
               >
-                <Option value="teacher">教师登录</Option>
-                <Option value="student">学生登录</Option>
-                <Option value="admin">管理员登录</Option>
+                <Option value="teacher">教师</Option>
+                <Option value="student">学生</Option>
+                <Option value="admin">管理员</Option>
               </Select>
 
               <Input

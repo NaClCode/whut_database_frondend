@@ -121,8 +121,8 @@ const Register = () => {
               className='select-field'
               size="large"
             >
-              <Option value="teacher">教师登录</Option>
-              <Option value="student">学生登录</Option>
+              <Option value="teacher">教师</Option>
+              <Option value="student">学生</Option>
           </Select>
 
           <Input
