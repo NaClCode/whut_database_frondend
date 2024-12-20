@@ -253,6 +253,26 @@ const course = {
       }
     })
   },
+  teacherTable: (time) => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/table/teacher/table',
+      params: {
+        time
+      }
+    })
+  },
+  teacherDayTable: (time) => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/table/teacher/dayTable',
+      params: {
+        time
+      }
+    })
+  },
   studentGrade: (page, pagesize) => {
     return axios({
       baseURL,
