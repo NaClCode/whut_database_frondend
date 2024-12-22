@@ -344,6 +344,28 @@ const course = {
         teacher_schedule
       }
     })
+  },
+  gradeTeacher: (class_id) => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/grade/teacher',
+      params: {
+        class_id
+      }
+    })
+  },
+  updateTeacher: (class_id, student_id, grade) => {
+    return axios({
+      baseURL,
+      method: 'put',
+      url: '/course/grade/teacher',
+      data: {
+        class_id,
+        student_id,
+        grade
+      }
+    })
   }
 }
 

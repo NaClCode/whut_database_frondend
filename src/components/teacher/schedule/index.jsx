@@ -83,8 +83,8 @@ const TeacherSchedule = () => {
       }
     };
   
-    const reportData = await fetchTeacherSchedule(); // 等待异步函数的结果
-    if (!reportData) return; // 如果没有数据，直接返回
+    const reportData = await fetchTeacherSchedule();
+    if (!reportData) return;
   
     // 定义表格数据
     const columns = [
@@ -133,7 +133,7 @@ const TeacherSchedule = () => {
       {
         key: "6",
         attribute: "冲突学生",
-        value: reportData.conflict_student_names || "无",
+        value: reportData.conflict_student || "无",
       },
     ];
   
