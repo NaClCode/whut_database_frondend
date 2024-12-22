@@ -1,32 +1,74 @@
-import React, { useState } from 'react';
-import { Table, Button, Modal, Form, Input, List, Card, DatePicker, Select } from 'antd';
-import './schedule.scss'; 
+import React, { useState, useEffect } from 'react';
+import { Table, Button, Modal, Form, Input, List, Card, DatePicker, Select, Switch, message } from 'antd';
+import './schedule.scss';
+import { service } from '@/service';
+import moment from 'moment';
+import SelectWithAll from '@/utils/Select';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 const TeacherSchedule = () => {
-  const [courses, setCourses] = useState([
-    { id: 1, name: '数学', teacher: '张老师' },
-    { id: 2, name: '英语', teacher: '李老师' },
-    { id: 3, name: '科学', teacher: '王老师' },
-  ]);
-
-  const [schedule, setSchedule] = useState([
-    { id: 1, courseName: '数学', time: '周一 9:00 AM' },
-    { id: 2, courseName: '英语', time: '周二 10:00 AM' },
-  ]);
-
+  const [courses, setCourses] = useState([]);
+  const [schedule, setSchedule] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentSchedule, setCurrentSchedule] = useState(null);
   const [currentCourse, setCurrentCourse] = useState(null);
+  const [isPreferredTimeVisible, setIsPreferredTimeVisible] = useState(false);
   const [form] = Form.useForm();
+  const [classrooms, setClassrooms] = useState([]);
+  const [courseCount, setCourseCount] = useState(null);
 
-  const handleNewSchedule = () => {
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const data = await service.course.classList();
+        setCourses(data.data.data);
+      } catch (error) {
+        message.error('获取课程列表失败，请稍后再试。');
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  const fetchClassrooms = async (courseCount) => {
+    try {
+      const data = await service.course.classroomList(courseCount);
+      const res = data.data.data;
+      return res;
+    } catch (error) {
+      message.error('获取教室列表失败，请稍后再试。');
+      return [];
+    }
+  };
+
+  const handleCourseClick = (course) => {
+    const fetchSchedule = async () => {
+      try {
+        const data = await service.course.scheduleList(course.class_id);
+        const fetchedSchedule = data.data.data;
+        setSchedule(fetchedSchedule);
+        setCurrentCourse(course);
+        setCourseCount(course.num);
+      } catch (error) {
+        message.error('获取课程排课计划失败，请稍后再试。');
+      }
+    };
+
+    fetchSchedule();
+  };
+
+  const handleNewSchedule = async () => {
     setIsModalVisible(true);
     setCurrentSchedule(null);
     form.resetFields();
-    form.setFieldValue('courseName', currentCourse?.name || '');
+    form.setFieldsValue({ courseName: currentCourse?.name || '' });
+
+    if (courseCount !== null) {
+      const classrooms = await fetchClassrooms(courseCount);
+      setClassrooms(classrooms);
+    }
   };
 
   const handleViewReport = (item) => {
@@ -41,25 +83,37 @@ const TeacherSchedule = () => {
     });
   };
 
-  const handleCourseClick = (course) => {
-    const filteredSchedule = schedule.filter((item) => item.courseName === course.name);
-    setCurrentCourse({ ...course, schedule: filteredSchedule });
+  const mapPreferredTimeToBinary = (preferredTime) => {
+    const timeSlots = ["8-10", "10-12", "14-16", "16-18", "19-21"];
+    const binaryArray = timeSlots.map((slot) =>
+        preferredTime.includes(slot) ? 1 : 0
+    );
+    return binaryArray;
   };
 
-  const handleModalOk = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        if (currentSchedule) {
-          setSchedule((prev) =>
-            prev.map((item) => (item.id === currentSchedule.id ? { ...item, ...values } : item))
-          );
-        } else {
-          setSchedule((prev) => [...prev, { id: Date.now(), ...values }]);
-        }
-        setIsModalVisible(false);
-      })
-      .catch((info) => console.log('校验失败:', info));
+  const handleModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+      const { timeRange, classroom, preferredTime } = values;
+      const [start_date, end_date] = timeRange.map((time) => time.format('YYYY-MM-DD HH:mm:ss'));
+      
+      const preferredTimeBinary = mapPreferredTimeToBinary(preferredTime || []);
+
+      await service.course.schedule(
+        currentCourse.class_id,
+        start_date,
+        end_date,
+        classroom,
+        preferredTimeBinary || [],
+      );
+
+      message.success('排课成功');
+      setIsModalVisible(false);
+
+      handleCourseClick(currentCourse);
+    } catch (error) {
+      message.error('保存排课失败，请稍后再试。');
+    }
   };
 
   const handleModalCancel = () => {
@@ -68,17 +122,31 @@ const TeacherSchedule = () => {
 
   const columns = [
     {
-      title: '课程',
+      title: '课程 ID',
+      dataIndex: 'class_id',
+      key: 'class_id',
+      align: 'center',
+      width: 80,
+    },
+    {
+      title: '课程名称',
       dataIndex: 'name',
       key: 'name',
       align: 'center',
-      width: 100,
+      width: 80,
+    },
+    {
+      title: '人数',
+      dataIndex: 'num',
+      key: 'numStudents',
+      align: 'center',
+      width: 80,
     },
     {
       title: '操作',
       key: 'action',
-      width: 100,
       align: 'center',
+      width: 80,
       render: (text, record) => (
         <Button type="link" onClick={() => handleCourseClick(record)}>
           查看详情
@@ -92,7 +160,7 @@ const TeacherSchedule = () => {
       <div className="courses-container">
         <h3>课程列表</h3>
         <Table
-          dataSource={courses.map((course) => ({ ...course, key: course.id }))}
+          dataSource={courses.map((course) => ({ ...course, key: course.class_id }))}
           columns={columns}
           pagination={false}
         />
@@ -100,26 +168,33 @@ const TeacherSchedule = () => {
 
       <div className="schedule-container">
         <h3>排课计划</h3>
+        <Button
+          type="primary"
+          onClick={handleNewSchedule}
+          className="new-schedule-button"
+        >
+          新建排课
+        </Button>
         {currentCourse ? (
           <>
-            <h4>当前课程: {currentCourse.name}</h4>
-            <Button type="primary" onClick={handleNewSchedule} className="new-schedule-button">
-              新建排课
-            </Button>
             <List
               grid={{ gutter: 16, column: 1 }}
-              dataSource={currentCourse.schedule}
+              dataSource={schedule}
               renderItem={(item) => (
                 <List.Item>
                   <Card
-                    title={item.courseName}
+                    title={item.classroom}
                     extra={
-                      <Button type="link" onClick={() => handleViewReport(item)}>
-                        查看报告
-                      </Button>
+                      item.is_teacher ? (
+                        <Button type="link" onClick={() => handleViewReport(item)}>
+                          查看报告
+                        </Button>
+                      ) : null
                     }
                   >
-                    时间: {item.time}
+                    <div>
+                      {moment(item.start_time).format("YYYY-MM-DD HH:mm:ss")} - {moment(item.end_time).format("YYYY-MM-DD HH:mm:ss")}
+                    </div>
                   </Card>
                 </List.Item>
               )}
@@ -132,42 +207,61 @@ const TeacherSchedule = () => {
 
       <Modal
         title={currentSchedule ? '编辑排课' : '新建排课'}
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleModalOk}
         onCancel={handleModalCancel}
       >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="courseName"
-            label="课程名称"
-            rules={[{ required: true, message: '请输入课程名称' }]}
-          >
-            <Input disabled={!!currentCourse} />
-          </Form.Item>
+        <Form
+          form={form}
+          layout="vertical"
+        >
           <Form.Item
             name="timeRange"
             label="时间范围"
             rules={[{ required: true, message: '请选择时间范围' }]}
           >
-            <RangePicker showTime format="YYYY-MM-DD HH:mm" />
+            <RangePicker
+              showTime
+              format="YYYY-MM-DD HH:mm:ss"
+            />
           </Form.Item>
           <Form.Item
             name="classroom"
             label="教室"
             rules={[{ required: true, message: '请选择教室' }]}
           >
-            <Select mode="multiple" placeholder="请选择教室">
-              <Option value="A101">A101</Option>
-              <Option value="B202">B202</Option>
-              <Option value="C303">C303</Option>
-            </Select>
+            <SelectWithAll mode="multiple" placeholder="请选择教室">
+              {classrooms.map((room) => (
+                <Option key={room.id} value={room.classroom_id}>
+                  {room.name}
+                </Option>
+              ))}
+            </SelectWithAll>
           </Form.Item>
           <Form.Item
-            name="courseCount"
-            label="课程数量"
-            rules={[{ required: true, message: '请输入课程数量' }]}
+            label="偏好时间"
           >
-            <Input type="number" min={1} />
+            <div className='prefertime'>
+              <Switch
+                checked={isPreferredTimeVisible}
+                onChange={(checked) => setIsPreferredTimeVisible(checked)}
+              />
+            </div>
+
+            {isPreferredTimeVisible && (
+              <Form.Item
+                name="preferredTime"
+                rules={[{ message: '请选择偏好时间' }]}
+              >
+                <SelectWithAll mode="multiple" placeholder="选择一天的时间段">
+                  <Option value="8-10">8:00-10:00</Option>
+                  <Option value="10-12">10:00-12:00</Option>
+                  <Option value="14-16">14:00-16:00</Option>
+                  <Option value="16-18">16:00-18:00</Option>
+                  <Option value="19-21">19:00-21:00</Option>
+                </SelectWithAll>
+              </Form.Item>
+            )}
           </Form.Item>
         </Form>
       </Modal>

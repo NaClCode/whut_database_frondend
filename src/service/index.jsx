@@ -283,6 +283,47 @@ const course = {
         pagesize
       }
     })
+  },
+  classList: () => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/schedule/classList'
+    })
+  },
+  scheduleList: (class_id) => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/schedule/scheduleList',
+      params: {
+        class_id
+      }
+    })
+  },
+  classroomList: (class_num) => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/schedule/classroomList',
+      params: {
+        class_num
+      }
+    })
+  },
+  schedule: (course_id, start_date, end_date, classroom, prefer) => {
+    return axios({
+      baseURL,
+      method: 'post',
+      url: '/course/schedule/schedule',
+      data: {
+        course_id,
+        start_date,
+        end_date,
+        classroom,
+        prefer
+      }
+    })
   }
 }
 
