@@ -249,15 +249,16 @@ const TeacherSchedule = () => {
 
       <div className="schedule-container">
         <h3>排课计划</h3>
-        <Button
-          type="primary"
-          onClick={handleNewSchedule}
-          className="new-schedule-button"
-        >
-          新建排课
-        </Button>
+       
         {currentCourse ? (
           <>
+            <Button
+              type="primary"
+              onClick={handleNewSchedule}
+              className="new-schedule-button"
+            >
+              新建排课
+            </Button>
             <List
               grid={{ gutter: 16, column: 1 }}
               dataSource={schedule}
