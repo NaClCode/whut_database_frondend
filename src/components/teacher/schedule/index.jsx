@@ -71,22 +71,104 @@ const TeacherSchedule = () => {
     }
   };
 
-  const handleViewReport = (item) => {
+  const handleViewReport = async (item) => {
+    const fetchTeacherSchedule = async () => {
+      try {
+        const data = await service.course.teacherScheduleList(item.id);
+        const res = data.data.data;
+        return res;
+      } catch (error) {
+        message.error("获取课程排课计划失败，请稍后再试。");
+        return null;
+      }
+    };
+  
+    const reportData = await fetchTeacherSchedule(); // 等待异步函数的结果
+    if (!reportData) return; // 如果没有数据，直接返回
+  
+    // 定义表格数据
+    const columns = [
+      {
+        title: "属性",
+        dataIndex: "attribute",
+        key: "attribute",
+        align: "center",
+        width: "50%",
+      },
+      {
+        title: "值",
+        dataIndex: "value",
+        key: "value",
+        align: "center",
+        width: "50%",
+      },
+    ];
+  
+    const dataSource = [
+      {
+        key: "1",
+        attribute: "教室",
+        value: item.classroom || "未指定",
+      },
+      {
+        key: "2",
+        attribute: "开始时间",
+        value: moment(reportData.start_time).format("YYYY-MM-DD HH:mm:ss"),
+      },
+      {
+        key: "3",
+        attribute: "结束时间",
+        value: moment(reportData.end_time).format("YYYY-MM-DD HH:mm:ss"),
+      },
+      {
+        key: "4",
+        attribute: "冲突率",
+        value: `${(reportData.conflict_rate * 100).toFixed(2)} %`,
+      },
+      {
+        key: "5",
+        attribute: "偏好满足率",
+        value: `${(reportData.prefer_rate * 100).toFixed(2)} %`,
+      },
+      {
+        key: "6",
+        attribute: "冲突学生",
+        value: reportData.conflict_student_names || "无",
+      },
+    ];
+  
     Modal.info({
-      title: '排课报告',
+      title: "AI 排课报告",
+      width: 800,
       content: (
         <div>
-          <p>课程: {item.courseName}</p>
-          <p>时间: {item.time}</p>
+          <Table
+            columns={columns}
+            dataSource={dataSource}
+            bordered
+            pagination={false}
+            size="middle"
+          />
         </div>
-      ),
+      )
     });
+  };
+  
+  
+  const handleDeleteSchedule = async (item) => {
+    try {
+      await service.course.teacherScheduleDelete(item.id);
+      message.success('撤销排课成功');
+      handleCourseClick(currentCourse); // 重新加载当前课程的排课计划
+    } catch (error) {
+      message.error('撤销排课失败，请稍后再试。');
+    }
   };
 
   const mapPreferredTimeToBinary = (preferredTime) => {
     const timeSlots = ["8-10", "10-12", "14-16", "16-18", "19-21"];
     const binaryArray = timeSlots.map((slot) =>
-        preferredTime.includes(slot) ? 1 : 0
+        preferredTime.includes(slot) ? 0 : 1
     );
     return binaryArray;
   };
@@ -99,7 +181,7 @@ const TeacherSchedule = () => {
       
       const preferredTimeBinary = mapPreferredTimeToBinary(preferredTime || []);
 
-      await service.course.schedule(
+      const data = await service.course.schedule(
         currentCourse.class_id,
         start_date,
         end_date,
@@ -109,10 +191,9 @@ const TeacherSchedule = () => {
 
       message.success('排课成功');
       setIsModalVisible(false);
-
       handleCourseClick(currentCourse);
     } catch (error) {
-      message.error('保存排课失败，请稍后再试。');
+      message.error(error.response.data.message);
     }
   };
 
@@ -186,9 +267,16 @@ const TeacherSchedule = () => {
                     title={item.classroom}
                     extra={
                       item.is_teacher ? (
-                        <Button type="link" onClick={() => handleViewReport(item)}>
-                          查看报告
-                        </Button>
+                        <div>
+                          <Button type="link" onClick={() => handleViewReport(item)}>
+                            查看报告
+                          </Button>
+                          <Button type="link" onClick={() => handleDeleteSchedule(item)}>
+                            删除
+                          </Button>
+                        </div>
+                        
+                        
                       ) : null
                     }
                   >
@@ -222,7 +310,7 @@ const TeacherSchedule = () => {
           >
             <RangePicker
               showTime
-              format="YYYY-MM-DD HH:mm:ss"
+              format="YYYY-MM-DD"
             />
           </Form.Item>
           <Form.Item
@@ -251,7 +339,7 @@ const TeacherSchedule = () => {
             {isPreferredTimeVisible && (
               <Form.Item
                 name="preferredTime"
-                rules={[{ message: '请选择偏好时间' }]}
+                rules={[{ required: true, message: '请选择偏好时间' }]}
               >
                 <SelectWithAll mode="multiple" placeholder="选择一天的时间段">
                   <Option value="8-10">8:00-10:00</Option>

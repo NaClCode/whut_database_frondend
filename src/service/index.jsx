@@ -324,6 +324,26 @@ const course = {
         prefer
       }
     })
+  },
+  teacherScheduleDelete: (teacher_schedule) => {
+    return axios({
+      baseURL,
+      method: 'delete',
+      url: '/course/schedule/teacherSchedule',
+      data: {
+        teacher_schedule
+      }
+    })
+  },
+  teacherScheduleList: (teacher_schedule) => {
+    return axios({
+      baseURL,
+      method: 'get',
+      url: '/course/schedule/teacherSchedule',
+      params: {
+        teacher_schedule
+      }
+    })
   }
 }
 

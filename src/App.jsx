@@ -18,16 +18,6 @@ const App = () => {
     }
   }
 
-  const showNavbar = () => {
-    const excludePaths = [];
-    for (let path of excludePaths) {
-      if (pathname.startsWith(path)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   const headerStyle = {
     padding: "0",
     backgroundColor: "rgba(255, 255, 255, 0)",
@@ -39,7 +29,7 @@ const App = () => {
   }
 
   const handleButtonClick = () => {
-    console.log('Floating button clicked!');
+    window.location.href = AIURL;
   }
 
   return (
