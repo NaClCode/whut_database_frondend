@@ -24,7 +24,9 @@
   }
   
   .course-card {
+    max-height: 88vh;
     height: 88vh;
+    overflow-y: auto;
     .timeline-item {
       margin: 0;
   

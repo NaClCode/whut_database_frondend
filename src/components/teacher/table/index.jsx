@@ -15,6 +15,14 @@ const TeacherTable = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const today = moment().format('YYYY-MM-DD');
+    setSelectedDate(today);
+    setCurrentMonth(moment().format('YYYY-MM'));
+    fetchCourseData(today);
+    fetchMonthCourseData(moment().format('YYYY-MM'));
+  }, []);
+
   const fetchCourseData = async (date) => {
     setLoading(true);
     try {
