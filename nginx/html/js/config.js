@@ -1,2 +1,2 @@
-window.baseURL = 'http://127.0.0.1:8000/'
-AIURL = 'http://127.0.0.1:6006'
+window.baseURL = 'http://1.94.169.77:8000/'
+AIURL = 'http://1.94.185.83:6006'
