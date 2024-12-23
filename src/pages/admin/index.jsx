@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Layout } from 'antd';
 import AdminSider from '@/components/admin/sider';
 import AdminSystem from '@/components/admin/system';
+
 import './admin.scss';
 
 const { Content } = Layout;
@@ -12,8 +13,6 @@ const Admin = () => {
   const renderContent = () => {
     switch (selectedMenu) {
       case '1':
-        return <div>1</div>
-      case '2':
         return <AdminSystem/>
     }
   };

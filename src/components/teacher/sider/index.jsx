@@ -5,7 +5,7 @@ import { CalendarOutlined, TableOutlined, BarChartOutlined } from '@ant-design/i
 const { Sider } = Layout;
 
 const menuItems = [
-  { key: '1', icon: <CalendarOutlined />, label: '排课' },
+  { key: '1', icon: <CalendarOutlined />, label: '实验排课' },
   { key: '2', icon: <TableOutlined />, label: '课表' },
   { key: '3', icon: <BarChartOutlined />, label: '成绩' },
 ];

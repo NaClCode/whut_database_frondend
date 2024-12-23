@@ -5,9 +5,7 @@ import { UserOutlined, DesktopOutlined, SolutionOutlined} from '@ant-design/icon
 const { Sider } = Layout;
 
 const menuItems = [
-  { key: '1', icon: <UserOutlined />, label: '人员管理' },
-  { key: '2', icon: <DesktopOutlined />, label: '系统管理' },
-  { key: '3', icon: <SolutionOutlined />, label: '课程管理' },
+  { key: '1', icon: <DesktopOutlined />, label: '系统管理' },
 ];
 
 const AdminSider = ({ selectedMenu, setSelectedMenu }) => {
