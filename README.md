@@ -23,7 +23,7 @@
 
 ## 运行
 1. 配置[config.js](./nginx/html/js/config.js)
-2. 运行[docker-compose.yml](docker-compose.yaml)
+2. 运行[docker-compose.yml](docker-compose.yml)
 ```shell
 docker-compose up -d
 ```
