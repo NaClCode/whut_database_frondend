@@ -28,5 +28,5 @@
 docker-compose up -d
 ```
 ## 文档
-1. 题目参考[题目](https://github.com/NaClCode/database_backend/doc/题目.docx)
-2. 文档参考[文档](https://github.com/NaClCode/database_backend/doc/软件开发技术实训实验报告.pdf)
+1. 题目参考[题目](https://github.com/NaClCode/whut_database_backend/blob/master/doc/%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8A%80%E6%9C%AF%E5%AE%9E%E8%AE%AD%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.docx)
+2. 文档参考[文档](https://github.com/NaClCode/whut_database_backend/blob/master/doc/%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8A%80%E6%9C%AF%E5%AE%9E%E8%AE%AD%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.pdf)
